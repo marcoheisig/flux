@@ -1,0 +1,22 @@
+* Possible Features:
+  - Code generation with scheme/JACAL
+  - Live Guile Interpreter
+  - Guile testcases
+  - Poisson Multigrid
+
+
+* Speed Comparision:
+  (Test system: Guile 2.0.9, Intel Core i7-3667U CPU @ 2.00GHz)
+
+** 100 Million times cos(acos( x ))
+   | Version                             | time in seconds |
+   |-------------------------------------+-----------------|
+   | C code                              |            4.45 |
+   | Guile code (compiled)               |           24.35 |
+   | Guile code (compiled, via ffi/libm) |           42.76 |
+   | Guile code (uncompiled)             |          488.51 |
+
+   Conclusion:
+   - 2.3 Million FFI calls per second from Guile
+   - 10% - 20% of native C performance!
+
