@@ -1,18 +1,9 @@
 (define-module (sdl2 main)
   #:use-module (system foreign)
   #:use-module (sdl2 error)
-  #:use-module (marco libwrap)
+  #:use-module (marco utils)
   #:export
   (
-   SDL_INIT_TIMER
-   SDL_INIT_AUDIO
-   SDL_INIT_VIDEO
-   SDL_INIT_JOYSTICK
-   SDL_INIT_HAPTIC
-   SDL_INIT_GAMECONTROLLER
-   SDL_INIT_EVENTS
-   SDL_INIT_NOPARACHUTE
-   SDL_INIT_EVERYTHING
    init
    init-subsystem
    quit-all
@@ -20,22 +11,24 @@
    set-main-ready
    was-init))
 
-(define SDL_INIT_TIMER          #x00000001)
-(define SDL_INIT_AUDIO          #x00000010)
-(define SDL_INIT_VIDEO          #x00000020)
-(define SDL_INIT_JOYSTICK       #x00000200)
-(define SDL_INIT_HAPTIC         #x00001000)
-(define SDL_INIT_GAMECONTROLLER #x00002000)
-(define SDL_INIT_EVENTS         #x00004000)
-(define SDL_INIT_NOPARACHUTE    #x00100000)
-(define SDL_INIT_EVERYTHING     (logior
-                                 SDL_INIT_TIMER
-                                 SDL_INIT_AUDIO
-                                 SDL_INIT_VIDEO
-                                 SDL_INIT_JOYSTICK
-                                 SDL_INIT_HAPTIC
-                                 SDL_INIT_GAMECONTROLLER
-                                 SDL_INIT_EVENTS))
+
+(define-public-constants
+  (SDL_INIT_TIMER          #x00000001)
+  (SDL_INIT_AUDIO          #x00000010)
+  (SDL_INIT_VIDEO          #x00000020)
+  (SDL_INIT_JOYSTICK       #x00000200)
+  (SDL_INIT_HAPTIC         #x00001000)
+  (SDL_INIT_GAMECONTROLLER #x00002000)
+  (SDL_INIT_EVENTS         #x00004000)
+  (SDL_INIT_NOPARACHUTE    #x00100000)
+  (SDL_INIT_EVERYTHING     (logior
+                            SDL_INIT_TIMER
+                            SDL_INIT_AUDIO
+                            SDL_INIT_VIDEO
+                            SDL_INIT_JOYSTICK
+                            SDL_INIT_HAPTIC
+                            SDL_INIT_GAMECONTROLLER
+                            SDL_INIT_EVENTS)))
 
 (define libsdl2 (dynamic-link "libSDL2"))
 (from-lib
@@ -52,13 +45,13 @@
   "Initialize the SDL library. This must be called before using any other SDL function."
   (if (= 0 (SDL_Init flags))
       flags
-      (error (get-error))))
+      (error-here 'misc-error 'init (get-error) #f #f)))
 
 (define (init-subsystem flags)
   "Initialize specific SDL subsystems."
   (if (= 0 (SDL_InitSubSystem flags))
       flags
-      (error (get-error))))
+      (error-here 'misc-error 'init-subsystem (get-error) #f #f)))
 
 (define (quit-all)
   "Clean up all initialized subsystems"

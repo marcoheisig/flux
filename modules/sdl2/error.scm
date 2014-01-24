@@ -1,6 +1,6 @@
 (define-module (sdl2 error)
   #:use-module (system foreign)
-  #:use-module (marco libwrap)
+  #:use-module (marco utils)
   #:export (clear-error
             get-error
             set-error))

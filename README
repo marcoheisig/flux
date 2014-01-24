@@ -4,7 +4,6 @@
   - Guile testcases
   - Poisson Multigrid
 
-
 * Speed Comparision:
   (Test system: Guile 2.0.9, Intel Core i7-3667U CPU @ 2.00GHz)
 
