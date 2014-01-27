@@ -1,5 +1,5 @@
-(define-module (numerics staggered-grid)
-  #:use-module (numerics cartesian-grid)
+(define-module (extensions staggered-grid)
+  #:use-module (extensions cartesian-grid)
   #:use-module (oop goops)
   #:export
   (make-staggered-grid

@@ -1,7 +1,7 @@
 (define-module (sdl2 main)
   #:use-module (system foreign)
   #:use-module (sdl2 error)
-  #:use-module (marco utils)
+  #:use-module (utils marco)
   #:export
   (
    init

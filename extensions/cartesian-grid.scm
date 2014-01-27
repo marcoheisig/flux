@@ -1,4 +1,4 @@
-(define-module (numerics cartesian-grid)
+(define-module (extensions cartesian-grid)
   #:export
   (make-cartesian-grid
    clear-cartesian-grid

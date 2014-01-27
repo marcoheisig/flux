@@ -1,6 +1,6 @@
 (define-module (sdl2 events)
   #:use-module (sdl2 error)
-  #:use-module (marco utils)
+  #:use-module (utils marco)
   #:use-module (system foreign)
   #:use-module (rnrs bytevectors)
   #:export

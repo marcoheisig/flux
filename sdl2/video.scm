@@ -2,7 +2,7 @@
   #:use-module (system foreign)
   #:use-module (rnrs bytevectors)
   #:use-module (sdl2 error)
-  #:use-module (marco utils)
+  #:use-module (utils marco)
   #:export
   (
    create-window

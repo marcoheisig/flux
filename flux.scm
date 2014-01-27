@@ -2,7 +2,7 @@
 -e main -s
 !#
 
-(add-to-load-path "modules")
+(add-to-load-path (dirname (current-filename)))
 (use-modules
  (ice-9 getopt-long)
  (ice-9 readline)

@@ -1,4 +1,4 @@
-(define-module (marco utils)
+(define-module (utils marco)
   #:use-module (system foreign)
   #:export
   (

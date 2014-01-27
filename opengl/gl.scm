@@ -1,7 +1,7 @@
 (define-module (opengl gl)
   #:use-module (system foreign)
   #:use-module (rnrs bytevectors)
-  #:use-module (marco utils)
+  #:use-module (utils marco)
   #:export
   (
    clear-color
