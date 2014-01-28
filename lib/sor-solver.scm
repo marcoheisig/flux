@@ -1,4 +1,4 @@
-(define-module (flux sor-solver)
+(define-module (lib sor-solver)
   #:export
   (sor-solve))
 
