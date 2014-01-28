@@ -15,8 +15,7 @@
  (opengl gl)
  (flux cartesian-grid)
  (flux staggered-grid)
- (system repl error-handling)
- )
+ (system repl error-handling))
 (activate-readline)
 (load "params.scm")
 
@@ -27,7 +26,7 @@
          (options        (getopt-long args option-spec))
          (help-wanted    (option-ref options 'help #f))
          (version-wanted (option-ref options 'version #f)))
-
+    (format #t "Flux v~a - flux is free software under the GPLv3~%" flux-version)
     (if (or version-wanted help-wanted)
         (begin
           (if version-wanted

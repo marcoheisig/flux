@@ -1,3 +1,8 @@
+* Authors
+  Marco Heisig
+  Dominik Ernst
+  Julian Hammer
+
 * Possible Features:
   - Code generation with scheme/JACAL
   - Live Guile Interpreter
