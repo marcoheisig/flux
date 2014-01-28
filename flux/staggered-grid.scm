@@ -1,5 +1,5 @@
-(define-module (extensions staggered-grid)
-  #:use-module (extensions cartesian-grid)
+(define-module (flux staggered-grid)
+  #:use-module (flux cartesian-grid)
   #:use-module (oop goops)
   #:export
   (make-staggered-grid

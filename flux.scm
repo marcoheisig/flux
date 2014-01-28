@@ -1,6 +1,7 @@
 #!/usr/bin/guile \
 -e main -s
 !#
+(define flux-version "0.1 alpha")
 
 (add-to-load-path (dirname (current-filename)))
 (use-modules
@@ -12,9 +13,12 @@
  (sdl2 video)
  (sdl2 events)
  (opengl gl)
+ (flux cartesian-grid)
+ (flux staggered-grid)
  (system repl error-handling)
  )
 (activate-readline)
+(load "params.scm")
 
 (define (main args)
   "Flux - the hackable fluid simulator"
@@ -27,7 +31,7 @@
     (if (or version-wanted help-wanted)
         (begin
           (if version-wanted
-              (display "flux xversion 0.1\n"))
+              (format #t "flux v~a\n" flux-version))
           (if help-wanted
               (display
                "flux [options]\n")))

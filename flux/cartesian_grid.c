@@ -1,13 +1,4 @@
-#include <libguile.h>
-#include "config.h"
-
-static scm_t_bits cg_tag;
-struct cg {
-    SCM name;
-    size_t xsize;
-    size_t ysize;
-    real *data;
-};
+#include "cartesian_grid.h"
 
 SCM
 make_cg(SCM name, SCM scm_xsize, SCM scm_ysize) {
@@ -87,7 +78,7 @@ print_cg_full(SCM cg_smob) {
     scm_newline(port);
     for(int iy = 0; iy < ysize; ++iy) {
         for(int ix = 0; ix < xsize; ++ix) {
-            scm_display(scm_from_double(data[iy * xsize + ix]), port);
+            scm_display(scm_from_double(data[index(ix, iy, xsize)]), port);
             scm_puts(" ", port);
         }
         scm_newline(port);
@@ -122,7 +113,7 @@ set_cg(SCM cg_smob, SCM scm_ix, SCM scm_iy, SCM scm_value) {
     if(ix < 0 || ix >= xsize) scm_out_of_range("ref_cg", scm_ix);
     if(iy < 0 || iy >= ysize) scm_out_of_range("ref_cg", scm_iy);
     double value = scm_to_double(scm_value);
-    data[iy * xsize + ix] = value;
+    data[index(ix, iy, stride)] = value;
     return cg_smob;
 }
 
