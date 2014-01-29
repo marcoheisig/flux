@@ -1,4 +1,4 @@
-#!/usr/bin/guile \
+#!/usr/bin/env guile \
 -e main -s
 !#
 (define flux-version "0.1 alpha")
