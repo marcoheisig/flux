@@ -31,6 +31,11 @@
   (GL_SCISSOR_BIT         #x00080000)
   (GL_ALL_ATTRIB_BITS     #x000FFFFF))
 
+(chdir "opengl")
+(system "make --quiet libgl_init.so")
+(load-extension "./libgl_init" "scm_init_gl")
+(chdir "..")
+
 (define libGL   (dynamic-link "libGL"))
 
 (from-lib
