@@ -1,0 +1,8 @@
+1. Initialize MPI
+2. Split grid among MPI Ranks (stripes) + borders
+3. Init grid locally + borders
+4. SORSolver parallelisieren:
+    Residual
+    solve
+    setBoundary
+5. blocking
