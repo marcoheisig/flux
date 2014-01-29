@@ -98,7 +98,7 @@ ref_cg(SCM cg_smob, SCM scm_ix, SCM scm_iy) {
     if(ix < 0 || ix >= xsize) scm_out_of_range("ref_cg", scm_ix);
     if(iy < 0 || iy >= ysize) scm_out_of_range("ref_cg", scm_iy);
     scm_remember_upto_here_1(cg_smob);
-    return scm_from_double(data[iy * xsize + ix]);
+    return scm_from_double(data[index(ix, iy, xsize)]);
 }
 
 SCM
@@ -113,7 +113,7 @@ set_cg(SCM cg_smob, SCM scm_ix, SCM scm_iy, SCM scm_value) {
     if(ix < 0 || ix >= xsize) scm_out_of_range("ref_cg", scm_ix);
     if(iy < 0 || iy >= ysize) scm_out_of_range("ref_cg", scm_iy);
     double value = scm_to_double(scm_value);
-    data[index(ix, iy, stride)] = value;
+    data[index(ix, iy, xsize)] = value;
     return cg_smob;
 }
 
