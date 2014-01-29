@@ -81,5 +81,5 @@
       (if up
           (set! color (+ color 0.01))
           (set! color (- color 0.01)))
-      (usleep 17))))
+      (usleep 17000))))
 

@@ -16,6 +16,7 @@
   (xsize #:init-keyword #:xsize)
   (ysize #:init-keyword #:ysize)
   (p #:init-keyword #:p #:accessor pressure)
+  (q #:init-keyword #:p #:accessor pressure_tmp) ; jacobi needs two pressure arrays
   (r #:init-keyword #:r #:accessor rhs)
   (u #:init-keyword #:u #:accessor u)
   (v #:init-keyword #:v #:accessor v)
@@ -26,6 +27,7 @@
 (define (make-staggered-grid xsize ysize)
   (make <staggered-grid>
     #:p (make-cartesian-grid "pressure"   xsize      ysize)
+    #:q (make-cartesian-grid "pressure"   xsize      ysize)
     #:r (make-cartesian-grid "rhs"        xsize      ysize)
     #:u (make-cartesian-grid "x velocity" (1- xsize) ysize)
     #:v (make-cartesian-grid "y velocity" xsize      (1- ysize))

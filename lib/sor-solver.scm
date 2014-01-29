@@ -1,5 +1,7 @@
 (define-module (lib sor-solver)
-  #:export
-  (sor-solve))
+  #:export (sor-solve)
+  #:use-module (lib staggered-grid))
 
-(load-extension "./flux/sor_solver" "scm_init_sor_solver")
+(load-extension "./lib/sor_solver" "scm_init_sor_solver")
+(define (sor-solve staggered-grid itermax eps)
+  5)

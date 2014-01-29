@@ -14,7 +14,7 @@
  (opengl gl)
  (lib cartesian-grid)
  (lib staggered-grid)
- (lib staggered-grid))
+ (lib sor-solver))
 
 (activate-readline)
 

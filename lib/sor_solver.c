@@ -1,6 +1,7 @@
 #include "cartesian_grid.h"
 
-SCM sor_solve(SCM scm_grid, SCM scm_rhs, SCM scm_itermax, SCM scm_eps) {
+SCM sor_solve_internal(SCM scm_grid1, SCM scm_grid2,
+                       SCM scm_rhs, SCM scm_itermax, SCM scm_eps) {
     scm_assert_smob_type(cg_tag, scm_grid);
     scm_assert_smob_type(cg_tag, scm_rhs);
 
@@ -11,7 +12,7 @@ SCM sor_solve(SCM scm_grid, SCM scm_rhs, SCM scm_itermax, SCM scm_eps) {
 
     SCM_ASSERT_TYPE(grid->xsize != rhs->xsize ||
                     grid->ysize != rhs->ysize,
-                    rhs,
+                    scm_rhs,
                     SCM_ARGn,
                     "sor_solve",
                     "grid and rhs must have same dimensions");
@@ -24,15 +25,15 @@ SCM sor_solve(SCM scm_grid, SCM scm_rhs, SCM scm_itermax, SCM scm_eps) {
 
     for(int iy = 0; iy < ysize; ++iy) {
         for(int ix = 0; ix < xsize; ++ix) {
-            g[index(ix, iy, xsize)]
+            g[index(ix, iy, xsize)];
         }
     }
 
-    scm_remember_upto_here_1(rhs);
-    return rhs;
+    scm_remember_upto_here_1(scm_rhs);
+    return scm_grid;
 }
 
 void
 scm_init_sor_solver() {
-    scm_c_define_gsubr("sor-solve", 4, 0, 0, sor_solve );
+    scm_c_define_gsubr("sor-solve-internal", 4, 0, 0, sor_solve_internal);
 }
