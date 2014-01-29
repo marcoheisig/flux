@@ -5,5 +5,7 @@
    print-cartesian-grid
    cartesian-grid-ref
    cartesian-grid-set!))
-
-(load-extension "./lib/libcartesian_grid" "scm_init_cartesian_grid")
+(chdir "lib")
+(system "make --quiet libcartesian_grid.so")
+(load-extension "./libcartesian_grid" "scm_init_cartesian_grid")
+(chdir "..")
