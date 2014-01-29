@@ -33,7 +33,10 @@
   (GL_ALL_ATTRIB_BITS     #x000FFFFF))
 
 (chdir "opengl")
-(system "make --quiet libgl_init.so")
+(if (eqv? 0 (system "make --quiet libgl_init.so"))
+    #t
+    (error-here 'misc-error 'system "failed to compile libgl_init.so" #f #f))
+
 (load-extension "./libgl_init" "scm_init_gl")
 (chdir "..")
 

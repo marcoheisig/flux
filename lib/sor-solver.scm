@@ -2,7 +2,9 @@
   #:export (sor-solve)
   #:use-module (lib staggered-grid))
 (chdir "lib")
-(system "make --quiet sor_solver.so")
+(if (eqv? 0 (system "make --quiet sor_solver.so"))
+    #t
+    (error-here 'misc-error 'system "failed to compile libsor_solver.so" #f #f))
 (load-extension "./libsor_solver" "scm_init_sor_solver")
 (chdir "..")
 
