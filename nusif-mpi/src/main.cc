@@ -4,8 +4,6 @@
 #include "FileReader.hh"
 #include "Debug.hh"
 #include "FluidSimulator.hh"
-#include "QtVisualization/GridView.hh"
-#include <QApplication>
 
 #include "mpi.h"
 
@@ -105,15 +103,6 @@ int main( int argc, char** argv )
     
     FluidSimulator sim(cfg);
     sim.simulateTimeStepCount(cfg.getIntParameter("timesteps"));
-    
-    if(cfg.getIntParameter("imax")*cfg.getIntParameter("jmax")<=100) {
-        QApplication app(argc, argv);
-        GridView gridView;
-        gridView.showMaximized();
-
-        gridView.displayGrid(&sim.grid());
-        app.exec();
-    }
     
     cout << "done" << endl;
     
