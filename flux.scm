@@ -1,9 +1,9 @@
-#!/usr/bin/guile \
+#!/usr/bin/env guile \
 -e main -s
 !#
 (define flux-version "0.1 alpha")
 
-(add-to-load-path (dirname (current-filename)))
+(add-to-load-path (getenv "PWD"))
 (use-modules
  (ice-9 getopt-long)
  (ice-9 readline)
