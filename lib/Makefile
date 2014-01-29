@@ -7,7 +7,7 @@ all: $(LIBS)
 libcartesian_grid.so: cartesian_grid.c cartesian_grid.h
 	$(CC) $(CFLAGS) $< -o $@
 
-sor_solver.so: sor_solver.c cartesian_grid.h
+libsor_solver.so: sor_solver.c cartesian_grid.h
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:

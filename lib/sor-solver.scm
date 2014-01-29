@@ -3,7 +3,7 @@
   #:use-module (lib staggered-grid))
 (chdir "lib")
 (system "make --quiet sor_solver.so")
-(load-extension "./sor_solver" "scm_init_sor_solver")
+(load-extension "./libsor_solver" "scm_init_sor_solver")
 (chdir "..")
 
 (define (sor-solve staggered-grid itermax eps)

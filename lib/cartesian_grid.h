@@ -11,6 +11,6 @@ struct cg {
 };
 
 static inline size_t
-index(size_t ix, size_t iy, size_t stride) {
+idx(size_t ix, size_t iy, size_t stride) {
     return iy * stride + ix;
 }
