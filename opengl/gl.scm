@@ -6,6 +6,7 @@
   (
    clear-color
    clear
+   init-opengl
    ))
 
 (define-public-constants

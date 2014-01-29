@@ -69,6 +69,7 @@
          (*context (gl-create-context *window))
          (color    0.0)
          (up       #t))
+    (init-opengl)
     (while #t
       (handle-events)
       (clear-color color color color 0.0)
