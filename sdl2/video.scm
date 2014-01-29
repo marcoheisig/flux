@@ -51,7 +51,7 @@
 
 (define (create-window title x y w h flags)
   "Create a SDL window with the specified position, dimensions and flags"
-  (let ((*window (SDL_CreateWindow (string->pointer title "utf8") x y w h flags)))
+  (let ((*window (SDL_CreateWindow (string->pointer title) x y w h flags)))
     (if (null-pointer? *window)
         (error-here 'misc-error 'create-window (get-error) #f #f)
         *window)))
