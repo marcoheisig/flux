@@ -7,6 +7,8 @@
 #include "QtVisualization/GridView.hh"
 #include <QApplication>
 
+#include "mpi.h"
+
 #include <iostream>
 
 using namespace std;
@@ -17,6 +19,11 @@ int main( int argc, char** argv )
         cout << "Usage: " << argv[0] << " configfile" << endl;
         exit(1);
     }
+    
+    int ierr, rank, num_procs;
+    ierr = MPI_Init ( &argc, &argv );
+    ierr = MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+    ierr = MPI_Comm_size ( MPI_COMM_WORLD, &num_procs );
     
     FileReader cfg;
     cfg.registerStringParameter("name");
