@@ -14,7 +14,9 @@ SCM init_gl() {
     return SCM_BOOL_T;
 }
 
-void
-scm_init_gl() {
-    scm_c_define_gsubr("init-opengl", 0, 0, 0, init_gl);
+extern "C" {
+    void
+    scm_init_gl() {
+        scm_c_define_gsubr("init-opengl", 0, 0, 0, (void*)init_gl);
+    }
 }

@@ -1,7 +1,8 @@
-#!/usr/bin/env guile -s
+#!guile -s
 !#
 
 (add-to-load-path (dirname (current-filename)))
+
 (use-modules
  (ice-9 getopt-long)
  (ice-9 readline)
@@ -14,7 +15,9 @@
  (opengl gl)
  (lib cartesian-grid)
  (lib staggered-grid)
- (lib sor-solver))
+ (utils marco)
+ (lib jacobi-solver)
+)
 
 (activate-readline)
 
