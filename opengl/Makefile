@@ -9,3 +9,6 @@ endif
 
 libgl_init.so: gl.c
 	$(CC) $(CFLAGS) $< -o $@
+
+libvisualization.so: vis.c
+	$(CC) $(CFLAGS) $< -o $@
