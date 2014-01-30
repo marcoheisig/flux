@@ -9,7 +9,8 @@
    quit-all
    quit-subsystem
    set-main-ready
-   was-init))
+   was-init
+   ))
 
 
 (define-public-constants
