@@ -6,11 +6,11 @@
 #include "GrayScaleImage.hh"
 #include <iostream>
 
-int StaggeredGrid::yStartOfRank(int rank) {
+int StaggeredGrid::yStartOfBlock(int rank) {
     return blockHeight()*rank;
 }
 
-int StaggeredGrid::yEndOfRank(int rank, int ySize) {
+int StaggeredGrid::yEndOfBlock(int rank) {
     // This can be assumed, since we checked for 
     // imax+2 % num_procs_ == 0
     return blockHeight()*(rank+1)-1;
@@ -124,38 +124,47 @@ void StaggeredGrid::allgather() {
     MPI_Comm_split(MPI_COMM_WORLD, 0, rank_, &myComm);
     
     // p_
-    MPI_Allgather(MPI_IN_PLACE, blockHeight()*(xSize_+2), mpi_real,
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
                   &p_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
                   MPI_COMM_WORLD);
-    //// rhs_
-    //MPI_Allgather(&rhs_(0,yStartOfRank(rank_)), blockHeight()*(xSize_+2), mpi_real,
-    //              &rhs_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
-    //              MPI_COMM_WORLD);
-    //// u_
-    //MPI_Allgather(&u_(0,yStartOfRank(rank_)), blockHeight()*(xSize_+2), mpi_real,
-    //              &u_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
-    //              MPI_COMM_WORLD);
-    //// v_
-    //MPI_Allgather(&v_(0,yStartOfRank(rank_)), blockHeight()*(xSize_+2), mpi_real,
-    //              &v_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
-    //              MPI_COMM_WORLD);
-    //// f_
-    //MPI_Allgather(&f_(0,yStartOfRank(rank_)), blockHeight()*(xSize_+2), mpi_real,
-    //              &f_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
-    //              MPI_COMM_WORLD);
-    //// g_
-    //MPI_Allgather(&g_(0,yStartOfRank(rank_)), blockHeight()*(xSize_+2), mpi_real,
-    //              &g_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
-    //              MPI_COMM_WORLD);
-    //// flag_ <-- does not change after initialization
+    // rhs_
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &rhs_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  MPI_COMM_WORLD);
+    // u_
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &u_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  MPI_COMM_WORLD);
+    // v_
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &v_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  MPI_COMM_WORLD);
+    // f_
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &f_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  MPI_COMM_WORLD);
+    // g_
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &g_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  MPI_COMM_WORLD);
+    // flag_ <-- does not change after initialization
 }
     
-void StaggeredGrid::synchronizeBorderPressure() {
-    // TODO
+void StaggeredGrid::synchronizeGhostPressure() {
     // 1. Send north boundary to rank+1
-    //MPI_Send(p_[], )
-    
+    if(rank_+1 < num_procs_)
+        MPI_Ssend(&p_(0, yEndOfBlock(rank_)), blockWidth(), mpi_real, 
+                 rank_+1, 0, MPI_COMM_WORLD);
     // 2. Receive south boundary from rank-1
+    if(rank_-1 >= 0)
+        MPI_Recv(&p_(0, yEndOfBlock(rank_-1)), blockWidth(), mpi_real,
+                 rank_-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     // 3. Send south boundary to to rank-1
+    if(rank_-1 >= 0)
+        MPI_Ssend(&p_(0, yStartOfBlock(rank_)), blockWidth(), mpi_real, 
+                 rank_-1, 0, MPI_COMM_WORLD);
     // 4. Receive north boundary from rank+1
+    if(rank_+1 < num_procs_)
+        MPI_Recv(&p_(0, yStartOfBlock(rank_+1)), blockWidth(), mpi_real, 
+                 rank_+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 }

@@ -72,11 +72,11 @@ public:
     void createCircle   (int x, int y, int r);
     
     void allgather();
-    void synchronizeBorderPressure();
+    void synchronizeGhostPressure();
     int blockHeight();
     int blockWidth();
-    int yStartOfRank(int rank);
-    int yEndOfRank(int rank, int ySize);
+    int yStartOfBlock(int rank);
+    int yEndOfBlock(int rank);
 
 protected:
     int xSize_;

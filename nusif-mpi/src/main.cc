@@ -115,5 +115,7 @@ int main( int argc, char** argv )
     
     cout << "done" << endl;
     
+    MPI_Finalize();
+    
     return 0;
 }
