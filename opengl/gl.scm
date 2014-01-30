@@ -32,13 +32,7 @@
   (GL_SCISSOR_BIT         #x00080000)
   (GL_ALL_ATTRIB_BITS     #x000FFFFF))
 
-(chdir "opengl")
-(if (eqv? 0 (system "make --quiet libgl_init.so"))
-    #t
-    (error-here 'misc-error 'system "failed to compile libgl_init.so" #f #f))
-
-(load-extension "./libgl_init" "scm_init_gl")
-(chdir "..")
+(load-c++ "gl.cc" "scm_init_gl")
 
 (define libGL   (dynamic-link "libGL"))
 
