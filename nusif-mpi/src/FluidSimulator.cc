@@ -62,8 +62,9 @@ void FluidSimulator::computeFG() {
     }
     
     // Calculating internal values
-    for(int i=1; i<imax; ++i) {
-        for(int j=1; j<jmax+1; ++j) {
+    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax, grid_.yEndOfBlock(rank_)); ++j) {
+    //for(int j=1; j<jmax+1; ++j) {
+        for(int i=1; i<imax; ++i) {
             if(!grid_.isFluid(i,j))
                 continue;
             // Update F:
@@ -79,8 +80,9 @@ void FluidSimulator::computeFG() {
         }
     }
     
-    for(int i=1; i<imax+1; ++i) {
-        for(int j=1; j<jmax; ++j) {
+    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1, grid_.yEndOfBlock(rank_)); ++j) {
+    //for(int j=1; j<jmax; ++j) {
+        for(int i=1; i<imax+1; ++i) {
             if(!grid_.isFluid(i,j))
                 continue;
             // Update G:
@@ -284,7 +286,7 @@ void  FluidSimulator::updateVelocities() {
     Array<real> & p = grid_.p();
     
     // Horizontal velocities
-    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=grid_.yEndOfBlock(rank_); ++j)
+    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax, grid_.yEndOfBlock(rank_)); ++j)
     //for(int j=1; j<=jmax; ++j)
         for(int i=1; i<imax; ++i)
             if(grid_.isFluid(i,j))

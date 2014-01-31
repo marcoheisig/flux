@@ -1,7 +1,8 @@
 Routines to be parallelized:
+ * SORSolver::solve                     <- DomSki ist dabei
  * FluidSimulator::normalize
  * FluidSimulator::determineNextDT
    * absmax in FluidSimulator.hh
- * FluidSimulator::computeFG
+ * FluidSimulator::computeFG            DONE
  * FluidSimulator::composeRHS
-
+ * FluidSimulator::updateVelocities     DONE
