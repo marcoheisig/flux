@@ -119,14 +119,14 @@ void FluidSimulator::simulate(real duration) {
             grid_.p()(i,j) = conf_.getRealParameter("P_INIT");
     
     while(t <= duration) {
+        // Synchronize grid
+        grid_.allgather();
+        
         // Select dt
         determineNextDT(0.0);
         
         // Set boundary conditions
         refreshBoundaries();
-        
-        // Synchronize grid
-        grid_.allgather();
         
         // write vtk file
         if(n % conf_.getIntParameter("outputinterval") == 0 and rank_ == 0)
@@ -187,6 +187,9 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
             grid_.p()(i,j) = conf_.getRealParameter("P_INIT");
 
     while(n < nrOfTimeSteps) {
+        // Synchronize grid
+        grid_.allgather();
+        
         // Select dt
         determineNextDT(0.0);
         
@@ -196,9 +199,6 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         
         // Set boundary conditions
         refreshBoundaries();
-        
-        // Synchronize grid
-        grid_.allgather();
         
         // write vtk file
         if(n % conf_.getIntParameter("outputinterval") == 0 and rank_ == 0)
