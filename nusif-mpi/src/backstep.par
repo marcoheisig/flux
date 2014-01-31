@@ -28,7 +28,7 @@ P_INIT                 1.0		 # initial value for pressure
 xlength                30.0	     # domain size in x-direction
 ylength                1.5		 # domain size in y-direction
 imax                   300		 # number of interior cells in x-direction //Orginal:100
-jmax                   75		 # number of interior cells in y-direction //Orginal:25
+jmax                   78		 # number of interior cells in y-direction //Orginal:25
 
 RectangleX1            0.0       # x-coordinate of bottom-left point of the rectangle
 RectangleY1            0.0       # y-coordinate of bottom-left point of the rectangle

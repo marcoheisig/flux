@@ -52,6 +52,8 @@ bool SORSolver::solve(StaggeredGrid & grid) {
         
         if(iter % checkfrequency_ == 0) {
             res = residual(grid);
+        
+        grid.synchronizeGhostPressure();
 #ifndef NDEBUG
     //cout << "Residual: " << res << endl;
 #endif

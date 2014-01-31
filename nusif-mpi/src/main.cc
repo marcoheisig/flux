@@ -1,11 +1,11 @@
 #define _USE_MATH_DEFINES
 
+#include "mpi.h"
+
 #include "Array.hh"
 #include "FileReader.hh"
 #include "Debug.hh"
 #include "FluidSimulator.hh"
-
-#include "mpi.h"
 
 #include <iostream>
 
@@ -73,6 +73,10 @@ int main( int argc, char** argv )
     cfg.registerStringParameter("ObstacleFile", "");
     cfg.registerIntParameter("threshold", 1);
     
+    // MPI parameters:
+    cfg.registerIntParameter("rank", rank);
+    cfg.registerIntParameter("num_procs", num_procs);
+    
     bool res = cfg.readFile(argv[1]);
     CHECK_MSG(res, "Could not open config file.");
     
@@ -100,11 +104,18 @@ int main( int argc, char** argv )
     CHECK_MSG(cfg.getRealParameter("RectangleX1") <= cfg.getRealParameter("RectangleX2"), "Wrong rectangle point order.");
     CHECK_MSG(cfg.getRealParameter("RectangleY1") <= cfg.getRealParameter("RectangleY2"), "Wrong rectangle point order.");
     
+    // Checking for imax+2 % num_procs == 0
+    //          and jmax+2 % num_procs == 0
+    //CHECK_MSG((cfg.getIntParameter("imax")+2)%num_procs == 0, "imax+2 has to be dividable by the number of MPI processes! ")
+    CHECK_MSG((cfg.getIntParameter("jmax")+2)%num_procs == 0, "jmax+2 has to be dividable by the number of MPI processes! ")
+    
     
     FluidSimulator sim(cfg);
     sim.simulateTimeStepCount(cfg.getIntParameter("timesteps"));
     
     cout << "done" << endl;
+    
+    MPI_Finalize();
     
     return 0;
 }

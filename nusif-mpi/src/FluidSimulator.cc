@@ -1,3 +1,4 @@
+#include "mpi.h"
 #include "FluidSimulator.hh"
 #include "SORSolver.hh"
 #include "VTKWriter.hh"
@@ -27,6 +28,8 @@ real absmax(Array<real> & a) {
 
 FluidSimulator::FluidSimulator(const FileReader & conf) :
     grid_(conf), conf_(conf), sor(conf) {
+    MPI_Comm_size(MPI_COMM_WORLD, &num_procs_);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
 }
      
 void FluidSimulator::computeFG() {
@@ -122,8 +125,11 @@ void FluidSimulator::simulate(real duration) {
         // Set boundary conditions
         refreshBoundaries();
         
+        // Synchronize grid
+        grid_.allgather();
+        
         // write vtk file
-        if(n % conf_.getIntParameter("outputinterval") == 0)
+        if(n % conf_.getIntParameter("outputinterval") == 0 and rank_ == 0)
             vtkWriter.write();
         
         // Recalculate F and G
@@ -191,8 +197,11 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         // Set boundary conditions
         refreshBoundaries();
         
+        // Synchronize grid
+        grid_.allgather();
+        
         // write vtk file
-        if(n % conf_.getIntParameter("outputinterval") == 0)
+        if(n % conf_.getIntParameter("outputinterval") == 0 and rank_ == 0)
             vtkWriter.write();
         
         // Recalculate F and G
@@ -221,13 +230,10 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         if(!sor.solve(grid_)) {
             cerr << "SOR has failed. Aborted." << endl;
             cerr << "Residual was: " << sor.residual(grid_) << endl;
-            //exit(1);
         }
         
         // Compute u and v
         updateVelocities();
-        
-        //break;
         
         // Increase time and iteration count
         t += dt;

@@ -32,6 +32,8 @@ class FluidSimulator
       const FileReader & conf_;
       SORSolver sor;
       real dt;
+      int rank_;
+      int num_procs_;
 };
 
 
