@@ -284,14 +284,16 @@ void  FluidSimulator::updateVelocities() {
     Array<real> & p = grid_.p();
     
     // Horizontal velocities
-    for(int i=1; i<imax; ++i)
-        for(int j=1; j<=jmax; ++j)
+    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=grid_.yEndOfBlock(rank_); ++j)
+    //for(int j=1; j<=jmax; ++j)
+        for(int i=1; i<imax; ++i)
             if(grid_.isFluid(i,j))
                 u(i,j) = f(i,j) - dtdx*(grid_.p(i,j, EAST)-p(i,j));
     
     // Vertical velocities
-    for(int i=1; i<=imax; ++i)
-        for(int j=1; j<jmax; ++j)
+    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1, grid_.yEndOfBlock(rank_)); ++j)
+    //for(int j=1; j<jmax; ++j)
+        for(int i=1; i<=imax; ++i)
             if(grid_.isFluid(i,j))
                 v(i,j) = g(i,j) - dtdy*(grid_.p(i,j, NORTH)-p(i,j));
 }
