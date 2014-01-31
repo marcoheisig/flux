@@ -62,8 +62,10 @@ void FluidSimulator::computeFG() {
     }
     
     // Calculating internal values
-    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax, grid_.yEndOfBlock(rank_)); ++j) {
-    //for(int j=1; j<jmax+1; ++j) {
+    //for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax, grid_.yEndOfBlock(rank_)); ++j) {
+    //for(int j=max(grid_.yStartOfBlock(rank_)-1,1); j<=min(grid_.yEndOfBlock(rank_)+1,jmax); ++j) {
+    //for(int j=max(1,grid_.yStartOfBlock(rank_)); j<=min(grid_.yEndOfBlock(rank_),jmax); ++j) {
+    for(int j=1; j<jmax+1; ++j) {
         for(int i=1; i<imax; ++i) {
             if(!grid_.isFluid(i,j))
                 continue;
@@ -80,8 +82,8 @@ void FluidSimulator::computeFG() {
         }
     }
     
-    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1, grid_.yEndOfBlock(rank_)); ++j) {
-    //for(int j=1; j<jmax; ++j) {
+    //for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1, grid_.yEndOfBlock(rank_)); ++j) {
+    for(int j=1; j<jmax; ++j) {
         for(int i=1; i<imax+1; ++i) {
             if(!grid_.isFluid(i,j))
                 continue;
@@ -203,7 +205,7 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         refreshBoundaries();
         
         // write vtk file
-        if(n % conf_.getIntParameter("outputinterval") == 0 and rank_ == 0)
+        if(n % conf_.getIntParameter("outputinterval") == 0 && rank_ == 0)
             vtkWriter.write();
         
         // Recalculate F and G
@@ -293,7 +295,7 @@ void  FluidSimulator::updateVelocities() {
                 u(i,j) = f(i,j) - dtdx*(grid_.p(i,j, EAST)-p(i,j));
     
     // Vertical velocities
-    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1, grid_.yEndOfBlock(rank_)); ++j)
+    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1,grid_.yEndOfBlock(rank_)); ++j)
     //for(int j=1; j<jmax; ++j)
         for(int i=1; i<=imax; ++i)
             if(grid_.isFluid(i,j))

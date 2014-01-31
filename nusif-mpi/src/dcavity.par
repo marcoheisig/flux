@@ -33,8 +33,8 @@ P_init    1.0                    # initial value for pressure
 
 xlength    10.0                    # domain size in x-direction
 ylength    10.0                    # domain size in y-direction
-imax       3                     # number of interior cells in x-direction
-jmax       3                     # number of interior cells in y-direction
+imax       18                     # number of interior cells in x-direction
+jmax       18                     # number of interior cells in y-direction
 
 
 # Time Data:

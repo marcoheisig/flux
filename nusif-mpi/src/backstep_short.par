@@ -39,7 +39,7 @@ RectangleY2            0.75      # y-coordinate of top-right point of the rectan
 # ---------
 
 dt                     0.02      # time stepsize
-timesteps              100       # number of timesteps
+timesteps              10        # number of timesteps
 safetyfactor           0.5       # factor "tau" for timestep size control (<=0 means constant dt)
 
 # Pressure Iteration Data:
