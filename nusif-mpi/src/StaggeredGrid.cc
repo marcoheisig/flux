@@ -129,34 +129,32 @@ void StaggeredGrid::allgather() {
     // Send complete own section to all other ranks
     // Receive other sections from all other ranks
     
-    // Building Intra-Communicator
-    MPI_Comm myComm;
-    MPI_Comm_split(MPI_COMM_WORLD, 0, rank_, &myComm);
-    
     // p_
     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
-                  &p_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  &p_(0,0), (xSize_+2)*blockHeight(), mpi_real,
                   MPI_COMM_WORLD);
     // rhs_
-     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
-                  &rhs_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &rhs_(0,0), (xSize_+2)*blockHeight(), mpi_real,
+
                   MPI_COMM_WORLD);
     // u_
     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
-                  &u_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  &u_(0,0), (xSize_+2)*blockHeight(), mpi_real,
                   MPI_COMM_WORLD);
     // v_
     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
-                  &v_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+                  &v_(0,0), (xSize_+2)*blockHeight(), mpi_real,
                   MPI_COMM_WORLD);
     // f_
-     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
-                  &f_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &f_(0,0), (xSize_+2)*blockHeight(), mpi_real,
                   MPI_COMM_WORLD);
     
     // g_
-     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
-                  &f_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &g_(0,0), (xSize_+2)*blockHeight(), mpi_real,
                   MPI_COMM_WORLD);
       
     // flag_ <-- does not change after initialization
