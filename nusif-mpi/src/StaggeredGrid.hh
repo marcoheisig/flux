@@ -67,6 +67,8 @@ public:
     
     int xSize() const { return xSize_; }
     int ySize() const { return ySize_; }
+
+    int rank() { return rank_; };
     
     void createRectangle(int x1, int y1, int x2, int y2);
     void createCircle   (int x, int y, int r);
@@ -77,6 +79,7 @@ public:
     int blockWidth();
     int yStartOfBlock(int rank);
     int yEndOfBlock(int rank);
+
 
 protected:
     int xSize_;

@@ -39,12 +39,23 @@ bool SORSolver::solve(StaggeredGrid & grid) {
 #endif
     int iter=0;
     while(iter++ <= itermax_ && res > eps_) {
-        // Perform one SOR iteration
-        # pragma omp parallel for
-        for(int i=1; i<=imax_; i++) {
-            for(int j=1; j<=jmax_; j++) {
+        
+        /*        cout << grid.rank() << ": " 
+             << max( 1, grid.yStartOfBlock(grid.rank())) << " "
+             << min( grid.yEndOfBlock(grid.rank())+1, jmax_) << "\n"; 
+        */
+        //for(int j= max( 1, grid.yStartOfBlock(grid.rank()));
+        //           j <= min( grid.yEndOfBlock(grid.rank())+1, jmax_); j++) {
+        //  for(int i=1; i<imax_; i++) {
+        for(int j=1; j<=jmax_; j++) {
+            for(int i=1; i<=imax_; i++) {
                 if(grid.isFluid(i,j))
-                    p(i,j) = (1-omg_)*p(i,j)+c*(dx2inv*(grid.p(i,j, EAST)+grid.p(i,j, WEST))+dy2inv*(grid.p(i,j, NORTH)+grid.p(i,j, SOUTH))-rhs(i,j));
+                    p(i,j) = (1-omg_)*p(i,j) + 
+                        c* ( dx2inv*( grid.p(i,j, EAST) + 
+                                      grid.p(i,j, WEST)) + 
+                             dy2inv*( grid.p(i,j, NORTH) + 
+                                      grid.p(i,j, SOUTH))
+                             -rhs(i,j));
             }
         }
         
@@ -53,7 +64,7 @@ bool SORSolver::solve(StaggeredGrid & grid) {
         if(iter % checkfrequency_ == 0) {
             res = residual(grid);
         
-        grid.synchronizeGhostPressure();
+            //       grid.synchronizeGhostPressure();
 #ifndef NDEBUG
     //cout << "Residual: " << res << endl;
 #endif

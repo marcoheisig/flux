@@ -6,14 +6,14 @@
 #include "GrayScaleImage.hh"
 #include <iostream>
 
-int StaggeredGrid::yStartOfBlock(int rank) {
-    return blockHeight()*rank;
+int StaggeredGrid::yStartOfBlock(int _rank) {
+    return blockHeight()*_rank;
 }
 
-int StaggeredGrid::yEndOfBlock(int rank) {
+int StaggeredGrid::yEndOfBlock(int _rank) {
     // This can be assumed, since we checked for 
     // imax+2 % num_procs_ == 0
-    return blockHeight()*(rank+1)-1;
+    return blockHeight()*(_rank+1)-1;
 }
 
 int StaggeredGrid::blockHeight() {
@@ -32,16 +32,26 @@ StaggeredGrid::StaggeredGrid(int xxSize, int yySize, real ddx, real ddy) :
 }
 
 StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
-    xSize_(configuration.getIntParameter("imax")+2), ySize_(configuration.getIntParameter("jmax")+2),
-    p_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
-    rhs_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
-    u_(configuration.getIntParameter("imax")+2/* 1 */, configuration.getIntParameter("jmax")+2),
-    v_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2/* 1 */),
-    f_(configuration.getIntParameter("imax")+2/* 1 */, configuration.getIntParameter("jmax")+2),
-    g_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2)/* 1 */,
-    flag_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
-    dx_(configuration.getRealParameter("xlength")/(real)configuration.getIntParameter("imax")),
-    dy_(configuration.getRealParameter("ylength")/(real)configuration.getIntParameter("jmax")) {
+    xSize_(configuration.getIntParameter("imax")+2),
+    ySize_(configuration.getIntParameter("jmax")+2),
+    p_(configuration.getIntParameter("imax")+2,
+       configuration.getIntParameter("jmax")+2),
+    rhs_(configuration.getIntParameter("imax")+2,
+         configuration.getIntParameter("jmax")+2),
+    u_(configuration.getIntParameter("imax")+2/* 1 */,
+       configuration.getIntParameter("jmax")+2),
+    v_(configuration.getIntParameter("imax")+2,
+       configuration.getIntParameter("jmax")+2/* 1 */),
+    f_(configuration.getIntParameter("imax")+2/* 1 */,
+       configuration.getIntParameter("jmax")+2),
+    g_(configuration.getIntParameter("imax")+2,
+       configuration.getIntParameter("jmax")+2)/* 1 */,
+    flag_(configuration.getIntParameter("imax")+2,
+          configuration.getIntParameter("jmax")+2),
+    dx_(configuration.getRealParameter("xlength") / 
+        (real)configuration.getIntParameter("imax")),
+    dy_(configuration.getRealParameter("ylength") / 
+        (real)configuration.getIntParameter("jmax")) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs_);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
     
@@ -128,7 +138,7 @@ void StaggeredGrid::allgather() {
                   &p_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
                   MPI_COMM_WORLD);
     // rhs_
-    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
                   &rhs_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
                   MPI_COMM_WORLD);
     // u_
@@ -140,13 +150,15 @@ void StaggeredGrid::allgather() {
                   &v_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
                   MPI_COMM_WORLD);
     // f_
-    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
                   &f_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
                   MPI_COMM_WORLD);
+    
     // g_
-    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
-                  &g_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
+     MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &f_(0,0), (xSize_+2)*(ySize_+2), mpi_real,
                   MPI_COMM_WORLD);
+      
     // flag_ <-- does not change after initialization
 }
     
