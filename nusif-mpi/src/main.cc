@@ -87,28 +87,64 @@ int main( int argc, char** argv )
     CHECK_MSG(res, "Could not open config file.");
     
     // Checking boundary condition and velocity sanity
-    CHECK_MSG(cfg.getStringParameter("boundary_condition_N") == "noslip" || cfg.getStringParameter("boundary_condition_N") == "outflow" || cfg.getStringParameter("boundary_condition_N") == "inflow", "Invalid north boundary condition.");
-    CHECK_MSG(cfg.getStringParameter("boundary_condition_S") == "noslip" || cfg.getStringParameter("boundary_condition_S") == "outflow" || cfg.getStringParameter("boundary_condition_S") == "inflow", "Invalid north boundary condition.");
-    CHECK_MSG(cfg.getStringParameter("boundary_condition_W") == "noslip" || cfg.getStringParameter("boundary_condition_W") == "outflow" || cfg.getStringParameter("boundary_condition_W") == "inflow", "Invalid north boundary condition.");
-    CHECK_MSG(cfg.getStringParameter("boundary_condition_E") == "noslip" || cfg.getStringParameter("boundary_condition_E") == "outflow" || cfg.getStringParameter("boundary_condition_E") == "inflow", "Invalid north boundary condition.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_N") == "outflow" && cfg.getRealParameter("boundary_velocity_N") != 0.0), "North boundary condition and velocity does not make sense.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_S") == "outflow" && cfg.getRealParameter("boundary_velocity_S") != 0.0), "South boundary condition and velocity does not make sense.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_W") == "outflow" && cfg.getRealParameter("boundary_velocity_W") != 0.0), "West boundary condition and velocity does not make sense.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_E") == "outflow" && cfg.getRealParameter("boundary_velocity_E") != 0.0), "East boundary condition and velocity does not make sense.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_N") == "inflow" && cfg.getRealParameter("boundary_velocity_N") == 0.0), "North boundary condition and velocity does not make sense.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_S") == "inflow" && cfg.getRealParameter("boundary_velocity_S") == 0.0), "South boundary condition and velocity does not make sense.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_W") == "inflow" && cfg.getRealParameter("boundary_velocity_W") == 0.0), "West boundary condition and velocity does not make sense.");
-    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_E") == "inflow" && cfg.getRealParameter("boundary_velocity_E") == 0.0), "East boundary condition and velocity does not make sense.");
+    CHECK_MSG(cfg.getStringParameter("boundary_condition_N") == "noslip" || 
+              cfg.getStringParameter("boundary_condition_N") == "outflow" || 
+              cfg.getStringParameter("boundary_condition_N") == "inflow",
+              "Invalid north boundary condition.");
+    CHECK_MSG(cfg.getStringParameter("boundary_condition_S") == "noslip" || 
+              cfg.getStringParameter("boundary_condition_S") == "outflow" || 
+              cfg.getStringParameter("boundary_condition_S") == "inflow",
+              "Invalid north boundary condition.");
+    CHECK_MSG(cfg.getStringParameter("boundary_condition_W") == "noslip" || 
+              cfg.getStringParameter("boundary_condition_W") == "outflow" || 
+              cfg.getStringParameter("boundary_condition_W") == "inflow",
+              "Invalid north boundary condition.");
+    CHECK_MSG(cfg.getStringParameter("boundary_condition_E") == "noslip" || 
+              cfg.getStringParameter("boundary_condition_E") == "outflow" || 
+              cfg.getStringParameter("boundary_condition_E") == "inflow",
+              "Invalid north boundary condition.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_N") == "outflow" && 
+                cfg.getRealParameter("boundary_velocity_N") != 0.0),
+              "North boundary condition and velocity does not make sense.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_S") == "outflow" && 
+                cfg.getRealParameter("boundary_velocity_S") != 0.0),
+              "South boundary condition and velocity does not make sense.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_W") == "outflow" && 
+                cfg.getRealParameter("boundary_velocity_W") != 0.0),
+              "West boundary condition and velocity does not make sense.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_E") == "outflow" &&
+                cfg.getRealParameter("boundary_velocity_E") != 0.0),
+              "East boundary condition and velocity does not make sense.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_N") == "inflow" && 
+                cfg.getRealParameter("boundary_velocity_N") == 0.0),
+              "North boundary condition and velocity does not make sense.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_S") == "inflow" &&
+                cfg.getRealParameter("boundary_velocity_S") == 0.0),
+              "South boundary condition and velocity does not make sense.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_W") == "inflow" &&
+                cfg.getRealParameter("boundary_velocity_W") == 0.0),
+              "West boundary condition and velocity does not make sense.");
+    CHECK_MSG(!(cfg.getStringParameter("boundary_condition_E") == "inflow" &&
+                cfg.getRealParameter("boundary_velocity_E") == 0.0),
+              "East boundary condition and velocity does not make sense.");
     
-    CHECK_MSG(cfg.getRealParameter("RectangleX1") < cfg.getRealParameter("xlength"), "Out of bound rectangle coordinate.");
-    CHECK_MSG(cfg.getRealParameter("RectangleX2") < cfg.getRealParameter("xlength"), "Out of bound rectangle coordinate.");
-    CHECK_MSG(cfg.getRealParameter("RectangleY1") < cfg.getRealParameter("ylength"), "Out of bound rectangle coordinate.");
-    CHECK_MSG(cfg.getRealParameter("RectangleY2") < cfg.getRealParameter("ylength"), "Out of bound rectangle coordinate.");
-    CHECK_MSG((cfg.getRealParameter("CircleX")+cfg.getRealParameter("CircleR")) < cfg.getRealParameter("xlength"), "Out of bound circle.");
-    CHECK_MSG((cfg.getRealParameter("CircleY")+cfg.getRealParameter("CircleR")) < cfg.getRealParameter("ylength"), "Out of bound circle.");
+    CHECK_MSG(cfg.getRealParameter("RectangleX1") < cfg.getRealParameter("xlength"),
+              "Out of bound rectangle coordinate.");
+    CHECK_MSG(cfg.getRealParameter("RectangleX2") < cfg.getRealParameter("xlength"), 
+              "Out of bound rectangle coordinate.");
+    CHECK_MSG(cfg.getRealParameter("RectangleY1") < cfg.getRealParameter("ylength"),
+              "Out of bound rectangle coordinate.");
+    CHECK_MSG(cfg.getRealParameter("RectangleY2") < cfg.getRealParameter("ylength"),
+              "Out of bound rectangle coordinate.");
+    CHECK_MSG((cfg.getRealParameter("CircleX")+cfg.getRealParameter("CircleR")) < cfg.getRealParameter("xlength"),
+              "Out of bound circle.");
+    CHECK_MSG((cfg.getRealParameter("CircleY")+cfg.getRealParameter("CircleR")) < cfg.getRealParameter("ylength"),
+              "Out of bound circle.");
     
-    CHECK_MSG(cfg.getRealParameter("RectangleX1") <= cfg.getRealParameter("RectangleX2"), "Wrong rectangle point order.");
-    CHECK_MSG(cfg.getRealParameter("RectangleY1") <= cfg.getRealParameter("RectangleY2"), "Wrong rectangle point order.");
+    CHECK_MSG(cfg.getRealParameter("RectangleX1") <= cfg.getRealParameter("RectangleX2"),
+              "Wrong rectangle point order.");
+    CHECK_MSG(cfg.getRealParameter("RectangleY1") <= cfg.getRealParameter("RectangleY2"),
+              "Wrong rectangle point order.");
     
     // Checking for imax+2 % num_procs == 0
     //          and jmax+2 % num_procs == 0
