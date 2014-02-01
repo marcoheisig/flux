@@ -1,3 +1,4 @@
+#include "mpi.h"
 #include <iostream>
 #include "Types.hh"
 #include "FileReader.hh"
@@ -33,16 +34,19 @@ bool SORSolver::solve(StaggeredGrid & grid) {
     setBoundary(grid);
         
     real res = residual(grid);
+    
+    p.syncGhostLayer();
 
 #ifndef NDEBUG
     cout << "Initial residual: " << res << endl;
 #endif
+    rhs.allgather();
     int iter=0;
     while(iter++ <= itermax_ && res > eps_) {
         // Perform one SOR iteration
-        # pragma omp parallel for
-        for(int i=1; i<=imax_; i++) {
-            for(int j=1; j<=jmax_; j++) {
+        for(int j=max(1, p.myYStart()); j<=min(jmax_, p.myYEnd()); j++) {
+        //for(int j=1; j<=jmax_; j++) {
+            for(int i=1; i<=imax_; i++) {
                 if(grid.isFluid(i,j))
                     p(i,j) = (1-omg_)*p(i,j)+c*(dx2inv*(grid.p(i,j, EAST)+grid.p(i,j, WEST))+dy2inv*(grid.p(i,j, NORTH)+grid.p(i,j, SOUTH))-rhs(i,j));
             }
@@ -52,10 +56,8 @@ bool SORSolver::solve(StaggeredGrid & grid) {
         
         if(iter % checkfrequency_ == 0) {
             res = residual(grid);
-        
-#ifndef NDEBUG
-    //cout << "Residual: " << res << endl;
-#endif
+        } else {
+            p.syncGhostLayer(); // residual also syncs, so we only need to do it here
         }
     }
     
@@ -92,8 +94,11 @@ real SORSolver::residual(StaggeredGrid & grid) {
     
     real sum = 0.0;
     
-    for(int i=1; i<=imax_; i++) {
-        for(int j=1; j<=jmax_; j++) {
+    p.syncGhostLayer();
+
+    for(int j=max(1, p.myYStart()); j<=min(jmax_, p.myYEnd()); j++) {
+    //for(int j=1; j<=jmax_; j++) {
+        for(int i=1; i<=imax_; i++) {
             if(grid.isFluid(i,j)) {
                 real r = dx2inv*(p(i+1,j)-2.0*p(i,j)+p(i-1,j)) + 
                     dy2inv*(grid.p(i,j, NORTH)-2.0*p(i,j)+grid.p(i,j, SOUTH))-rhs(i,j);
@@ -101,6 +106,8 @@ real SORSolver::residual(StaggeredGrid & grid) {
             }
         }
     }
+    
+    MPI_Allreduce(MPI_IN_PLACE, &sum, 1, mpi_real, MPI_SUM, MPI_COMM_WORLD);
     
     return sqrt(sum/(imax_*jmax_));
 }

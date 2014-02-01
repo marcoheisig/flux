@@ -100,11 +100,11 @@ void Array<real>::syncGhostLayer(bool send_north, bool send_south) {
         // 1. Send north boundary to rank+1
         if(rank_+1 < num_procs_)
             MPI_Ssend(&(*this)(0, yEndOfBlock(rank_)), blockWidth(), mpi_real, 
-                     rank_+1, 0, MPI_COMM_WORLD);
+                     rank_+1, 1, MPI_COMM_WORLD);
         // 2. Receive south boundary from rank-1
         if(rank_-1 >= 0)
             MPI_Recv(&(*this)(0, yEndOfBlock(rank_-1)), blockWidth(), mpi_real,
-                     rank_-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                     rank_-1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
     
     if(send_south) {
