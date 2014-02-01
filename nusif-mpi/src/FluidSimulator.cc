@@ -133,7 +133,6 @@ void FluidSimulator::simulate(real duration) {
         // Set boundary conditions
         refreshBoundaries();
         
-
         // write vtk file
         if(n % conf_.getIntParameter("outputinterval") == 0) {
             grid_.u().allgather(); // This should be gather(), but does not terminate
@@ -182,12 +181,12 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
     for(int i=0; i<grid_.u().xSize(); ++i)
         for(int j=0; j<grid_.u().ySize(); ++j) {
             // BACKSTEP SPECIAL!
-            //if(grid_.isFluid(1,j)) {
-            //    grid_.u()(i,j) = 1.0;
-            //} else {
-            //   grid_.u()(i,j) = 0.0;
-            // }
-            grid_.u()(i,j) = conf_.getRealParameter("U_INIT");
+            if(grid_.isFluid(1,j)) {
+                grid_.u()(i,j) = 1.0;
+            } else {
+                grid_.u()(i,j) = 0.0;
+            }
+            //grid_.u()(i,j) = conf_.getRealParameter("U_INIT");
         }
     
     for(int i=0; i<grid_.v().xSize(); ++i)
@@ -208,9 +207,7 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         
         // Set boundary conditions
         refreshBoundaries();
-
         
-
         // write vtk file
         if(n % conf_.getIntParameter("outputinterval") == 0) {
             grid_.u().allgather(); // This should be gather(), but does not terminate

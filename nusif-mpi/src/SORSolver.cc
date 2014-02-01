@@ -6,7 +6,6 @@
 #include "SORSolver.hh"
 #include "math.h"
 #include <cmath>
-#include <mpi.h>
 
 using namespace std;
 
@@ -24,9 +23,6 @@ SORSolver::SORSolver(const FileReader & configuration) :
 }
 
 bool SORSolver::solve(StaggeredGrid & grid) {
-
-        cout << grid.rank() << " solve\n";
-
     Array<real> &p = grid.p();
     Array<real> &rhs = grid.rhs();
     
@@ -46,27 +42,13 @@ bool SORSolver::solve(StaggeredGrid & grid) {
 #endif
     rhs.allgather();
     int iter=0;
-    
     while(iter++ <= itermax_ && res > eps_) {
-<<<<<<< HEAD
         // Perform one SOR iteration
         for(int j=max(1, p.myYStart()); j<=min(jmax_, p.myYEnd()); j++) {
         //for(int j=1; j<=jmax_; j++) {
-=======
-        p.syncGhostLayer();      
-        
-        for(int j= max( 1, p.myYStart());
-            j <= min( p.myYEnd(), jmax_); j++) {
-            //for(int j=1; j<=jmax_; j++) {
->>>>>>> 48fd8901e19ad1cd8d757bc3a517215d5892ca3a
             for(int i=1; i<=imax_; i++) {
                 if(grid.isFluid(i,j))
-                    p(i,j) = (1-omg_)*p(i,j) + 
-                        c* ( dx2inv*( grid.p(i,j, EAST) + 
-                                      grid.p(i,j, WEST)) + 
-                             dy2inv*( grid.p(i,j, NORTH) + 
-                                      grid.p(i,j, SOUTH))
-                             -rhs(i,j));
+                    p(i,j) = (1-omg_)*p(i,j)+c*(dx2inv*(grid.p(i,j, EAST)+grid.p(i,j, WEST))+dy2inv*(grid.p(i,j, NORTH)+grid.p(i,j, SOUTH))-rhs(i,j));
             }
         }
         
@@ -74,13 +56,9 @@ bool SORSolver::solve(StaggeredGrid & grid) {
         
         if(iter % checkfrequency_ == 0) {
             res = residual(grid);
-<<<<<<< HEAD
         } else {
             p.syncGhostLayer(); // residual also syncs, so we only need to do it here
-=======
->>>>>>> 48fd8901e19ad1cd8d757bc3a517215d5892ca3a
         }
-
     }
     
 #ifndef NDEBUG
@@ -116,15 +94,10 @@ real SORSolver::residual(StaggeredGrid & grid) {
     
     real sum = 0.0;
     
-<<<<<<< HEAD
     p.syncGhostLayer();
 
     for(int j=max(1, p.myYStart()); j<=min(jmax_, p.myYEnd()); j++) {
     //for(int j=1; j<=jmax_; j++) {
-=======
-    for(int j= max( 1, p.myYStart());
-        j <= min( p.myYEnd(), jmax_); j++) {
->>>>>>> 48fd8901e19ad1cd8d757bc3a517215d5892ca3a
         for(int i=1; i<=imax_; i++) {
             if(grid.isFluid(i,j)) {
                 real r = dx2inv*(p(i+1,j)-2.0*p(i,j)+p(i-1,j)) + 
@@ -133,19 +106,8 @@ real SORSolver::residual(StaggeredGrid & grid) {
             }
         }
     }
-<<<<<<< HEAD
     
     MPI_Allreduce(MPI_IN_PLACE, &sum, 1, mpi_real, MPI_SUM, MPI_COMM_WORLD);
     
     return sqrt(sum/(imax_*jmax_));
 }
-=======
-
-
-
-    real dst = 0;
-    MPI_Allreduce( &sum, &dst, 1, mpi_real, MPI_SUM, MPI_COMM_WORLD);
-
-    return sqrt(dst / (imax_*jmax_));
-}
->>>>>>> 48fd8901e19ad1cd8d757bc3a517215d5892ca3a

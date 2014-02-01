@@ -10,20 +10,18 @@ name dcavity
 
 # per default all boundaries are NOSLIP if not otherwise stated
 
-#boundary_condition_W inflow
-#boundary_velocity_W 1.0          # constant velocity u_bar of the lid
+boundary_condition_W inflow
+boundary_velocity_W 1.0          # constant velocity u_bar of the lid
 #boundary_velocity_E -1.0
 #boundary_condition_E inflow
-#boundary_condition_E outflow
-#boundary_condition_N outflow
-#boundary_condition_S outflow
-
-boundary_velocity_N 2.0
+boundary_condition_E outflow
+boundary_condition_N outflow
+boundary_condition_S outflow
 
 GX    0.0                        # Body forces (e.g. gravity)
 GY    0.0                        #
 
-Re    5000.0                       # Reynolds number
+Re    100.0                       # Reynolds number
    
 U_init    0.0                    # initial value for velocity in x-direction
 V_init    0.0                    # initial value for velocity in y-direction
@@ -35,15 +33,15 @@ P_init    1.0                    # initial value for pressure
 
 xlength    10.0                    # domain size in x-direction
 ylength    10.0                    # domain size in y-direction
-imax       100                     # number of interior cells in x-direction
-jmax       100                     # number of interior cells in y-direction
+imax       18                     # number of interior cells in x-direction
+jmax       18                     # number of interior cells in y-direction
 
 
 # Time Data:
 # ---------
 
-dt           0.1                 # time stepsize
-timesteps    4000                  # number of timesteps
+dt           0.02                 # time stepsize
+timesteps    200                  # number of timesteps
 safetyfactor 0.5                  # factor "tau" for timestep size control (<=0 means constant dt)
 
 # Pressure Iteration Data:
@@ -69,7 +67,7 @@ normalizationfrequency 100        # every n'th time step in the fluid solver the
 
 # VTK Visualization Data:
 # -----------------------
-outputinterval 40                  # every n'th time step the visualization should be printed to a file
+outputinterval 5                  # every n'th time step the visualization should be printed to a file
 
 
 #===============================================================================
