@@ -42,15 +42,12 @@ bool SORSolver::solve(StaggeredGrid & grid) {
     cout << "Initial residual: " << res << endl;
 #endif
     int iter=0;
-    cout << grid.rank() << ": " 
-         << max( 1, grid.yStartOfBlock(grid.rank())) << " "
-         << min( grid.yEndOfBlock(grid.rank())+1, jmax_) << "\n"; 
     
     while(iter++ <= itermax_ && res > eps_) {
-        grid.synchronizeGhostPressure();      
+        p.syncGhostLayer();      
         
-        for(int j= max( 1, grid.yStartOfBlock(grid.rank()));
-            j <= min( grid.yEndOfBlock(grid.rank()), jmax_); j++) {
+        for(int j= max( 1, p.myYStart());
+            j <= min( p.myYEnd(), jmax_); j++) {
             //for(int j=1; j<=jmax_; j++) {
             for(int i=1; i<=imax_; i++) {
                 if(grid.isFluid(i,j))
@@ -104,8 +101,8 @@ real SORSolver::residual(StaggeredGrid & grid) {
     
     real sum = 0.0;
     
-    for(int j= max( 1, grid.yStartOfBlock(grid.rank()));
-        j <= min( grid.yEndOfBlock(grid.rank()), jmax_); j++) {
+    for(int j= max( 1, p.myYStart());
+        j <= min( p.myYEnd(), jmax_); j++) {
         for(int i=1; i<=imax_; i++) {
             if(grid.isFluid(i,j)) {
                 real r = dx2inv*(p(i+1,j)-2.0*p(i,j)+p(i-1,j)) + 

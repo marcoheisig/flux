@@ -68,7 +68,7 @@ public:
     int xSize() const { return xSize_; }
     int ySize() const { return ySize_; }
 
-    int rank() { return rank_; };
+    int rank() { return p_.rank_; };
     
     void createRectangle(int x1, int y1, int x2, int y2);
     void createCircle   (int x, int y, int r);
@@ -77,6 +77,7 @@ public:
 protected:
     int xSize_;
     int ySize_;
+
     
     Array<real> p_;      //< pressure field
     Array<real> rhs_;    //< right hand side of the pressure equation
