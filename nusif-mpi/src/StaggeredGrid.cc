@@ -10,6 +10,7 @@ StaggeredGrid::StaggeredGrid(int xxSize, int yySize, real ddx, real ddy) :
     p_(xxSize, yySize), rhs_(xxSize, yySize), u_(xxSize, yySize), v_(xxSize, yySize), 
     f_(xxSize, yySize), g_(xxSize, yySize), flag_(xxSize, yySize), dx_(ddx), dy_(ddy) {
     flag_.fill(FLUID);
+    numFluid = (flag_.xSize()-2)*(flag_.ySize()-2);
 }
 
 StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
@@ -25,6 +26,7 @@ StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
     dy_(configuration.getRealParameter("ylength")/(real)configuration.getIntParameter("jmax")) {
     
     flag_.fill(FLUID);
+    numFluid = (flag_.xSize()-2)*(flag_.ySize()-2);
     
     // Include obstacles
     if(configuration.getRealParameter("RectangleX1") >= 0.0 && 
@@ -77,12 +79,13 @@ StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
 }
 
 void StaggeredGrid::createRectangle(int x1, int y1, int x2, int y2) {
-    cout << x1 << " " << y1 << "     " << x2 << " " << y2 << endl;
     for(int x=x1; x<x2; ++x)
         for(int y=y1; y<y2; ++y)
             if(x < xSize_ && \
-               y < ySize_)
-            flag_(x,y) = SOLID;
+               y < ySize_) {
+                flag_(x,y) = SOLID;
+                numFluid--;
+            }
 }
 
 void StaggeredGrid::createCircle(int x, int y, int r) {
@@ -90,6 +93,9 @@ void StaggeredGrid::createCircle(int x, int y, int r) {
         for(int ry=-r; ry<r; ++ry)
             if(rx*rx+ry*ry <= r &&
                x+rx < xSize_ && \
-               y+ry < ySize_)
+               y+ry < ySize_){
                 flag_(x+rx,y+ry) = SOLID;
+                numFluid--;
+            }
+                   
 }

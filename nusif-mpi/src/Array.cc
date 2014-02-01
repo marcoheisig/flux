@@ -88,6 +88,13 @@ void Array<real>::allgather() {
 }
 
 template<>
+void Array<real>::gather(int root) {
+    MPI_Gather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+               &data[0], xSize_*ySize_/num_procs_, mpi_real,
+               root, MPI_COMM_WORLD);
+}
+
+template<>
 void Array<real>::syncGhostLayer(bool send_north, bool send_south) {
     if(send_north) {
         // 1. Send north boundary to rank+1

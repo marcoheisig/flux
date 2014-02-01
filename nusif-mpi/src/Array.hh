@@ -40,6 +40,7 @@ public:
     
     // MPI Functionality
     void allgather();
+    void gather(int root=0);
     void syncGhostLayer(bool send_north=true, bool send_south=true);
 
     int blockHeight() { return ySize_/num_procs_; }

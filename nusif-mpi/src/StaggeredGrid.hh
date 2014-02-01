@@ -70,6 +70,8 @@ public:
     
     void createRectangle(int x1, int y1, int x2, int y2);
     void createCircle   (int x, int y, int r);
+    
+    int numFluid; // Total number of fluid cells
 
 protected:
     int xSize_;
