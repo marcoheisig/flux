@@ -72,21 +72,11 @@ public:
     
     void createRectangle(int x1, int y1, int x2, int y2);
     void createCircle   (int x, int y, int r);
-    
-    void allgather();
-    void synchronizeGhostPressure();
-    int blockHeight();
-    int blockWidth();
-    int yStartOfBlock(int rank);
-    int yEndOfBlock(int rank);
 
 
 protected:
     int xSize_;
     int ySize_;
-    
-    int num_procs_;
-    int rank_;
     
     Array<real> p_;      //< pressure field
     Array<real> rhs_;    //< right hand side of the pressure equation

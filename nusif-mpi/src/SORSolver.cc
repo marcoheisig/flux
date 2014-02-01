@@ -67,7 +67,6 @@ bool SORSolver::solve(StaggeredGrid & grid) {
         
         if(iter % checkfrequency_ == 0) {
             res = residual(grid);
-    
         }
 
     }

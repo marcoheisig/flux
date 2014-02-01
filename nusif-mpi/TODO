@@ -1,12 +1,13 @@
-1. Initialize MPI done
-    -> pass rank and num_procs to all others (done through FileReader :P)
-2. Split grid among MPI Ranks (stripes) + borders
-    -> write transfer function of boundary cells to neighbors
-3. Init grid locally + borders
-    -> at beginnen every rank has same data (done)
-    -> at end stream all data to rank0
-4. SORSolver parallelisieren:
-    Residual
-    solve
-    setBoundary
-5. blocking
+Routines to be parallelized:
+ * SORSolver::solve                     <- DomSki ist dabei
+   * SORSolver::residual
+ * FluidSimulator::normalize
+ * FluidSimulator::determineNextDT
+   * absmax in FluidSimulator.hh
+ * FluidSimulator::refreshBoundaries
+ * FluidSimulator::computeFG            DONE
+   * Replace allgather with FG ghost layer exchange (depends on composeRHS and updateVelocities)    DONE
+ * FluidSimulator::composeRHS           DONE
+   * Remove synchronization (depends on solver, residual and normalize)
+ * FluidSimulator::updateVelocities     DONE
+DONE
