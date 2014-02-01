@@ -11,3 +11,9 @@ Routines to be parallelized:
  * FluidSimulator::composeRHS           DONE
    * Remove synchronization (depends on solver, residual and normalize)
  * FluidSimulator::updateVelocities     DONE
+
+
+Aufteilung:
+ * Parallelisierung des Lösers: Dom
+ * Parallelisierung der Infrastruktur: Julian
+ * Luftschlösser: Marco
