@@ -37,10 +37,31 @@ public:
     // Getter methods
     int xSize() const { return xSize_; }
     int ySize() const { return ySize_; }
+    
+    // MPI Functionality
+    void allgather();
+    void syncGhostLayer(bool send_north=true, bool send_south=true);
+
+    int blockHeight() { return ySize_/num_procs_; }
+
+    int blockWidth() { return xSize_; }
+    
+    int myYStart() {return yStartOfBlock(rank_);}
+    int myYEnd() {return yEndOfBlock(rank_);}
 
 private:
     std::vector<T> data;
     int xSize_, ySize_;
+    
+    int num_procs_;
+    int rank_;
+    
+    int yStartOfBlock(int rank) { return blockHeight()*rank; }
+
+    int yEndOfBlock(int rank) {
+        // This can be assumed, since we checked for 
+        // imax+2 % num_procs_ == 0
+        return blockHeight()*(rank+1)-1; }
 
 };
 

@@ -62,10 +62,9 @@ void FluidSimulator::computeFG() {
     }
     
     // Calculating internal values
-    //for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax, grid_.yEndOfBlock(rank_)); ++j) {
-    //for(int j=max(grid_.yStartOfBlock(rank_)-1,1); j<=min(grid_.yEndOfBlock(rank_)+1,jmax); ++j) {
-    //for(int j=max(1,grid_.yStartOfBlock(rank_)); j<=min(grid_.yEndOfBlock(rank_),jmax); ++j) {
-    for(int j=1; j<jmax+1; ++j) {
+    //for(int j=max(1, grid_.f().myYStart()); j<=min(jmax, grid_.g().myYEnd()); ++j) {
+    //for(int j=max(1, grid_.f().myYStart()); j<=jmax; ++j) {
+    for(int j=1; j<=jmax; ++j) {
         for(int i=1; i<imax; ++i) {
             if(!grid_.isFluid(i,j))
                 continue;
@@ -82,7 +81,7 @@ void FluidSimulator::computeFG() {
         }
     }
     
-    //for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1, grid_.yEndOfBlock(rank_)); ++j) {
+    //for(int j=max(1, grid_.g().myYStart()); j<=min(jmax-1, grid_.g().myYEnd()); ++j) {
     for(int j=1; j<jmax; ++j) {
         for(int i=1; i<imax+1; ++i) {
             if(!grid_.isFluid(i,j))
@@ -99,6 +98,11 @@ void FluidSimulator::computeFG() {
             grid_.g()(i,j) = v(i,j)+dt*(ReInv*(d2vdx2+d2vdy2)-duvdx-dv2dy+gy);
         }
     }
+    
+    // TODO exchange ghost layer of G in south direction (only g(i,j-1) (send_north=true) is needed)
+    // depends on composeRHS and updateVelocities
+    grid_.f().allgather();
+    grid_.g().allgather();
 }
 
 void FluidSimulator::simulate(real duration) {
@@ -123,8 +127,14 @@ void FluidSimulator::simulate(real duration) {
             grid_.p()(i,j) = conf_.getRealParameter("P_INIT");
     
     while(t <= duration) {
-        // Synchronize grid
-        grid_.allgather();
+        // Synchronize all grids
+        // TODO reduce to minimum
+        grid_.u().allgather();
+        grid_.v().allgather();
+        grid_.f().allgather();
+        grid_.g().allgather();
+        grid_.rhs().allgather();
+        grid_.p().allgather();
         
         // Select dt
         determineNextDT(0.0);
@@ -191,8 +201,14 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
             grid_.p()(i,j) = conf_.getRealParameter("P_INIT");
 
     while(n < nrOfTimeSteps) {
-        // Synchronize grid
-        grid_.allgather();
+        // Synchronize all grids
+        // TODO reduce to minimum
+        grid_.u().allgather();
+        grid_.v().allgather();
+        grid_.f().allgather();
+        grid_.g().allgather();
+        grid_.rhs().allgather();
+        grid_.p().allgather();
         
         // Select dt
         determineNextDT(0.0);
@@ -252,20 +268,27 @@ void  FluidSimulator::composeRHS() {
     const real dxInv = 1.0/grid_.dx();
     const real dyInv = 1.0/grid_.dy();
     
-    
     Array<real> & f = grid_.f();
     Array<real> & g = grid_.g();
     
-    for(int i=1; i<=conf_.getIntParameter("imax"); ++i)
-        for(int j=1; j<=conf_.getIntParameter("jmax"); ++j)
+    const int imax = conf_.getIntParameter("imax");
+    const int jmax = conf_.getIntParameter("jmax");
+
+    //for(int j=1; j<=jmax; ++j)
+    for(int j=max(1, grid_.rhs().myYStart()); j<=min(jmax, grid_.rhs().myYEnd()); ++j)
+        for(int i=1; i<=imax; ++i)
             if(grid_.isFluid(i,j))
                 grid_.rhs()(i,j) = dtInv*(
                     (f(i,j)-f(i-1,j))*dxInv + (g(i,j)-g(i,j-1))*dyInv);
     
-
+    // TODO remove allgather() once solver, normalize and residual calculation
+    // is ported to run only on local area
+    grid_.rhs().allgather();
+    
     normalize(grid_.rhs());
     
 #ifndef NDEBUG
+    // Maybe port this to MPI or remove.
     real s = 0.0;
     for(int i=1; i<=conf_.getIntParameter("imax"); ++i)
         for(int j=1; j<=conf_.getIntParameter("jmax"); ++j)
@@ -288,14 +311,14 @@ void  FluidSimulator::updateVelocities() {
     Array<real> & p = grid_.p();
     
     // Horizontal velocities
-    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax, grid_.yEndOfBlock(rank_)); ++j)
+    for(int j=max(1, grid_.u().myYStart()); j<=min(jmax, grid_.u().myYEnd()); ++j)
     //for(int j=1; j<=jmax; ++j)
         for(int i=1; i<imax; ++i)
             if(grid_.isFluid(i,j))
                 u(i,j) = f(i,j) - dtdx*(grid_.p(i,j, EAST)-p(i,j));
     
     // Vertical velocities
-    for(int j=max(1, grid_.yStartOfBlock(rank_)); j<=min(jmax-1,grid_.yEndOfBlock(rank_)); ++j)
+    for(int j=max(1, grid_.v().myYStart()); j<=min(jmax-1,grid_.v().myYEnd()); ++j)
     //for(int j=1; j<jmax; ++j)
         for(int i=1; i<=imax; ++i)
             if(grid_.isFluid(i,j))

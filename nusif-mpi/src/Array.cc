@@ -1,3 +1,4 @@
+#include "mpi.h"
 #include "Array.hh"
 #include <memory>
 #include <vector>
@@ -18,6 +19,8 @@ template <typename T>
 Array<T>::Array( int xxSize, int yySize ) : 
     data((size_t)(xxSize*yySize)), xSize_(xxSize), ySize_(yySize)
 {
+    MPI_Comm_size(MPI_COMM_WORLD, &num_procs_);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
 }
 
 //===================================================================================================================
@@ -76,3 +79,35 @@ class Array<real>;
 
 template
 class Array<short>;
+
+template<>
+void Array<real>::allgather() {
+    MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                  &data[0], xSize_*ySize_/num_procs_, mpi_real,
+                  MPI_COMM_WORLD);
+}
+
+template<>
+void Array<real>::syncGhostLayer(bool send_north, bool send_south) {
+    if(send_north) {
+        // 1. Send north boundary to rank+1
+        if(rank_+1 < num_procs_)
+            MPI_Ssend(&(*this)(0, yEndOfBlock(rank_)), blockWidth(), mpi_real, 
+                     rank_+1, 0, MPI_COMM_WORLD);
+        // 2. Receive south boundary from rank-1
+        if(rank_-1 >= 0)
+            MPI_Recv(&(*this)(0, yEndOfBlock(rank_-1)), blockWidth(), mpi_real,
+                     rank_-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+    if(send_south) {
+        // 3. Send south boundary to to rank-1
+        if(rank_-1 >= 0)
+            MPI_Ssend(&(*this)(0, yStartOfBlock(rank_)), blockWidth(), mpi_real, 
+                     rank_-1, 0, MPI_COMM_WORLD);
+        // 4. Receive north boundary from rank+1
+        if(rank_+1 < num_procs_)
+            MPI_Recv(&(*this)(0, yStartOfBlock(rank_+1)), blockWidth(), mpi_real, 
+                     rank_+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+}

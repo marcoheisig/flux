@@ -1,8 +1,11 @@
 Routines to be parallelized:
  * SORSolver::solve                     <- DomSki ist dabei
+   * SORSolver::residual
  * FluidSimulator::normalize
  * FluidSimulator::determineNextDT
    * absmax in FluidSimulator.hh
- * FluidSimulator::computeFG            DONE
- * FluidSimulator::composeRHS
+ * FluidSimulator::computeFG            
+   * Replace allgather with FG ghost layer exchange (depends on composeRHS and updateVelocities)
+ * FluidSimulator::composeRHS           DONE
+   * Remove synchronization (depends on solver, residual and normalize)
  * FluidSimulator::updateVelocities     DONE
