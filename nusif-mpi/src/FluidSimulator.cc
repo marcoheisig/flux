@@ -62,9 +62,8 @@ void FluidSimulator::computeFG() {
     }
     
     // Calculating internal values
-    //for(int j=max(1, grid_.f().myYStart()); j<=min(jmax, grid_.g().myYEnd()); ++j) {
-    //for(int j=max(1, grid_.f().myYStart()); j<=jmax; ++j) {
-    for(int j=1; j<=jmax; ++j) {
+    for(int j=max(1, grid_.f().myYStart()); j<=min(jmax, grid_.g().myYEnd()); ++j) {
+    //for(int j=1; j<=jmax; ++j) {
         for(int i=1; i<imax; ++i) {
             if(!grid_.isFluid(i,j))
                 continue;
@@ -81,8 +80,8 @@ void FluidSimulator::computeFG() {
         }
     }
     
-    //for(int j=max(1, grid_.g().myYStart()); j<=min(jmax-1, grid_.g().myYEnd()); ++j) {
-    for(int j=1; j<jmax; ++j) {
+    for(int j=max(1, grid_.g().myYStart()); j<=min(jmax-1, grid_.g().myYEnd()); ++j) {
+    //for(int j=1; j<jmax; ++j) {
         for(int i=1; i<imax+1; ++i) {
             if(!grid_.isFluid(i,j))
                 continue;
@@ -99,10 +98,9 @@ void FluidSimulator::computeFG() {
         }
     }
     
-    // TODO exchange ghost layer of G in south direction (only g(i,j-1) (send_north=true) is needed)
-    // depends on composeRHS and updateVelocities
-    grid_.f().allgather();
-    grid_.g().allgather();
+    // Exchange ghost layer of G in south direction (only g(i,j-1) is needed)
+    // required for composeRHS and updateVelocities
+    grid_.g().syncGhostLayer(true, false); // only send_north
 }
 
 void FluidSimulator::simulate(real duration) {
@@ -129,12 +127,8 @@ void FluidSimulator::simulate(real duration) {
     while(t <= duration) {
         // Synchronize all grids
         // TODO reduce to minimum
-        grid_.u().allgather();
-        grid_.v().allgather();
-        grid_.f().allgather();
-        grid_.g().allgather();
-        grid_.rhs().allgather();
-        grid_.p().allgather();
+        grid_.u().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
+        grid_.v().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
         
         // Select dt
         determineNextDT(0.0);
@@ -143,8 +137,14 @@ void FluidSimulator::simulate(real duration) {
         refreshBoundaries();
         
         // write vtk file
-        if(n % conf_.getIntParameter("outputinterval") == 0 and rank_ == 0)
-            vtkWriter.write();
+        if(n % conf_.getIntParameter("outputinterval") == 0) {
+            grid_.u().allgather();
+            grid_.v().allgather();
+            grid_.p().allgather();
+            
+            if(rank_ == 0)
+                vtkWriter.write();
+        }
         
         // Recalculate F and G
         computeFG();
@@ -203,12 +203,8 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
     while(n < nrOfTimeSteps) {
         // Synchronize all grids
         // TODO reduce to minimum
-        grid_.u().allgather();
-        grid_.v().allgather();
-        grid_.f().allgather();
-        grid_.g().allgather();
-        grid_.rhs().allgather();
-        grid_.p().allgather();
+        grid_.u().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
+        grid_.v().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
         
         // Select dt
         determineNextDT(0.0);
@@ -221,8 +217,14 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         refreshBoundaries();
         
         // write vtk file
-        if(n % conf_.getIntParameter("outputinterval") == 0 && rank_ == 0)
-            vtkWriter.write();
+        if(n % conf_.getIntParameter("outputinterval") == 0) {
+            grid_.u().allgather();
+            grid_.v().allgather();
+            grid_.p().allgather();
+            
+            if(rank_ == 0)
+                vtkWriter.write();
+        }
         
         // Recalculate F and G
         computeFG();
@@ -233,18 +235,6 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         // Normalize pressure
         if(n % conf_.getIntParameter("normalizationfrequency") == 0)
             normalize(grid_.p());
-        
-        //cout << "RHS:" << endl;
-        //grid_.rhs().print();
-        //cout << "F:" << endl;
-        //grid_.f().print();
-        //cout << "G:" << endl;
-        //grid_.g().print();
-        //cout << "U:" << endl;
-        //grid_.u().print();
-        //cout << "V:" << endl;
-        //grid_.v().print();
-        //exit(1);
         
         // SOR
         if(!sor.solve(grid_)) {
@@ -288,7 +278,7 @@ void  FluidSimulator::composeRHS() {
     normalize(grid_.rhs());
     
 #ifndef NDEBUG
-    // Maybe port this to MPI or remove.
+    // TODO Maybe port this to MPI or remove.
     real s = 0.0;
     for(int i=1; i<=conf_.getIntParameter("imax"); ++i)
         for(int j=1; j<=conf_.getIntParameter("jmax"); ++j)

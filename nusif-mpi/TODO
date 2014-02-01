@@ -4,8 +4,10 @@ Routines to be parallelized:
  * FluidSimulator::normalize
  * FluidSimulator::determineNextDT
    * absmax in FluidSimulator.hh
- * FluidSimulator::computeFG            
-   * Replace allgather with FG ghost layer exchange (depends on composeRHS and updateVelocities)
+ * FluidSimulator::refreshBoundaries
+ * FluidSimulator::computeFG            DONE
+   * Replace allgather with FG ghost layer exchange (depends on composeRHS and updateVelocities)    DONE
  * FluidSimulator::composeRHS           DONE
    * Remove synchronization (depends on solver, residual and normalize)
  * FluidSimulator::updateVelocities     DONE
+DONE
