@@ -44,8 +44,8 @@ bool SORSolver::solve(StaggeredGrid & grid) {
     int iter=0;
     while(iter++ <= itermax_ && res > eps_) {
         // Perform one SOR iteration
-        for(int j=max(1, p.myYStart()); j<=min(jmax_, p.myYEnd()); j++) {
-        //for(int j=1; j<=jmax_; j++) {
+        //for(int j=max(1, p.myYStart()); j<=min(jmax_, p.myYEnd()); j++) {
+        for(int j=1; j<=jmax_; j++) {
             for(int i=1; i<=imax_; i++) {
                 if(grid.isFluid(i,j))
                     p(i,j) = (1-omg_)*p(i,j)+c*(dx2inv*(grid.p(i,j, EAST)+grid.p(i,j, WEST))+dy2inv*(grid.p(i,j, NORTH)+grid.p(i,j, SOUTH))-rhs(i,j));
