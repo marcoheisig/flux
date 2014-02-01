@@ -50,12 +50,14 @@ public:
     int myYStart() {return yStartOfBlock(rank_);}
     int myYEnd() {return yEndOfBlock(rank_);}
 
+
+    int rank_;
 private:
     std::vector<T> data;
     int xSize_, ySize_;
     
     int num_procs_;
-    int rank_;
+ 
     
     int yStartOfBlock(int rank) { return blockHeight()*rank; }
 

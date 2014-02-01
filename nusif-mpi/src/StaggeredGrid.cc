@@ -5,6 +5,7 @@
 #include "GrayScaleImage.hh"
 #include <iostream>
 
+
 StaggeredGrid::StaggeredGrid(int xxSize, int yySize, real ddx, real ddy) :
     xSize_(xxSize), ySize_(yySize),
     p_(xxSize, yySize), rhs_(xxSize, yySize), u_(xxSize, yySize), v_(xxSize, yySize), 
@@ -14,6 +15,7 @@ StaggeredGrid::StaggeredGrid(int xxSize, int yySize, real ddx, real ddy) :
 }
 
 StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
+
     xSize_(configuration.getIntParameter("imax")+2), ySize_(configuration.getIntParameter("jmax")+2),
     p_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
     rhs_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
