@@ -1,5 +1,5 @@
 #+STARTUP: beamer
-#+TITLE: Parralelisation of a Staggered Grid solver
+#+TITLE: Parallelisation of a Staggered Grid solver
 #+AUTHOR: Heisig, Hammer, Ernst
 #+LaTeX_CLASS: beamer
 #+LaTeX_CLASS_OPTIONS: [presentation]
