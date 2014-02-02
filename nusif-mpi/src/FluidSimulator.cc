@@ -102,7 +102,7 @@ void FluidSimulator::computeFG() {
     
     // Exchange ghost layer of G in south direction (only g(i,j-1) is needed)
     // required for composeRHS and updateVelocities
-    grid_.g().syncGhostLayer(true, false); // only send_north
+    grid_.g().syncGhostLayer(true, true); // only send_north
 }
 
 void FluidSimulator::simulate(real duration) {
@@ -260,10 +260,9 @@ void  FluidSimulator::composeRHS() {
                 grid_.rhs()(i,j) = dtInv*(
                     (f(i,j)-f(i-1,j))*dxInv + (g(i,j)-g(i,j-1))*dyInv);
     
-    // TODO remove allgather() once solver, normalize and residual calculation
-    // is ported to run only on local area
-    grid_.rhs().allgather();
-    
+
+    // grid_.rhs().allgather();
+    grid_.rhs().syncGhostLayer(true, true);
     normalize(grid_.rhs());
     
 
@@ -405,6 +404,6 @@ void FluidSimulator::normalize(Array<real> &a) {
         }
     }
     
-    //a.syncGhostLayer();
-    a.allgather(); // Can be replaced with ghost layver sync once solver is parallelized
+    a.syncGhostLayer();
+    // a.allgather(); // Can be replaced with ghost layver sync once solver is parallelized
 }
