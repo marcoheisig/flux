@@ -1,0 +1,101 @@
+#+STARTUP: beamer
+#+TITLE: Parralelisation of a Staggered Grid solver
+#+AUTHOR: Heisig, Hammer, Ernst
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation]
+# +LaTeX_CLASS_OPTIONS: [handout]
+#+BEAMER_THEME: Madrid
+#+OPTIONS: H:2
+#+BEAMER_HEADER_EXTRA: \usecolortheme{default}
+#+BEAMER_HEADER_EXTRA: \institute{FAU}
+#+BEAMER_HEADER_EXTRA: \setbeamercovered{transparent}
+#+COLUMNS: %35ITEM %10BEAMER_env(Env) %10BEAMER_envargs(Args) %4BEAMER_col(Col) %8BEAMER_extra(Ex)
+#+LATEX_HEADER: \newcommand{\s}{\rule{0pt}{0.7cm}}
+
+* Parallelization basics
+** Why parallelize your code?
+*** Pro                                                             :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+   - more compute power
+   - more memory
+   - parallel computing is the future
+*** Con                                                             :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+    - added code complexity
+    - communication overhead
+    - Increased power consumption
+*** conclusion                                              :B_ignoreheading:
+    :PROPERTIES:
+    :BEAMER_env: ignoreheading
+    :END:
+    Don't parallelize without profiling and performance modelling!
+** MPI in a nutshell
+   The *Message Passing Interface*
+   - call your program with =mpirun -np <N> <NAME> <ARGS>=
+   - spawns =<N>= identical processes
+   - only =MPI_MPI_Comm_rank(...)= gives different results
+
+   \s
+   Typical usage:
+   - split domain between all processes
+   - perform local updates
+   - exchange the borders
+   - repeat
+* Implementation
+** Implementation
+   The following steps must be parallelized
+   - SOR::solve()
+   - SOR::residual()
+   - SOR::normalize()
+   - determineNextDT()
+   - refreshBoundaries()
+   - computeFG()
+   - composeRHS()
+   - updateVelocities()
+
+*** conclusion                                              :B_ignoreheading:
+    :PROPERTIES:
+    :BEAMER_env: ignoreheading
+    :END:
+    Most of the time is spent in the SORSolver, so this is the focus.
+** Domain partitioning
+   - Usually domain is split in roughly quadratic tiles
+   - We chose the simpler approach: Split in horizontal stripes
+*** Pro
+    - easier to implement
+    - fast access patterns along the cachelines
+*** Con
+    - bad surface / size ratio for large number of processes
+    - more communication overhead
+** Domain partitioning (cont.)
+   Example of a 8 x 9 domain with 2 processes
+   #+ATTR_LATEX: :width 9cm
+   [[file:domain.png]]
+** Continuous migration
+   How do we migrate our serial codebase to a parallel one without the
+   agonizing pain™ ?
+
+   \s
+   Migration phase:
+   - Every process still has all the data
+   - Parallelize only one operation at a time
+   - Methods can be tested individually
+
+   \s
+   When all methods are converted, switch the Array implementation
+   to store only local elements.
+* Results
+** Results
+   Was it worth the effort?
+
+   Explanation:
+   - SOR or Jacobi solver does not scale well
+
+   Use a better algorithm before writing parallel code!
+* Possible improvements for numerical codes
+** Possible improvements for numerical codes
+Use LISP
