@@ -15,13 +15,15 @@ inline T sq(T value) {
 
 real absmax(Array<real> & a) {
     real m = 0.0;
-    for(int y=0; y<a.ySize(); ++y) {
+    for(int y=a.myYStart(); y<=a.myYEnd(); ++y) {
         for(int x=0; x<a.xSize(); ++x) {
             real t = fabs(a(x,y));
             if(t>m)
                 m = t;
         }
     }
+    
+    MPI_Allreduce(MPI_IN_PLACE, &m, 1, mpi_real, MPI_MAX, MPI_COMM_WORLD);
     
     return m;
 }
@@ -125,23 +127,17 @@ void FluidSimulator::simulate(real duration) {
             grid_.p()(i,j) = conf_.getRealParameter("P_INIT");
     
     while(t <= duration) {
-        // Synchronize all grids
-        // TODO reduce to minimum
-        grid_.u().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
-        grid_.v().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
-        
         // Select dt
         determineNextDT(0.0);
         
         // Set boundary conditions
         refreshBoundaries();
         
-
         // write vtk file
         if(n % conf_.getIntParameter("outputinterval") == 0) {
-            grid_.u().allgather();
-            grid_.v().allgather();
-            grid_.p().allgather();
+            grid_.u().allgather(); // This should be gather(), but does not terminate
+            grid_.v().allgather(); // This should be gather(), but does not terminate
+            grid_.p().allgather(); // This should be gather(), but does not terminate
             
             if(rank_ == 0)
                 vtkWriter.write();
@@ -202,11 +198,6 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
             grid_.p()(i,j) = conf_.getRealParameter("P_INIT");
 
     while(n < nrOfTimeSteps) {
-        // Synchronize all grids
-        // TODO reduce to minimum
-        grid_.u().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
-        grid_.v().allgather(); // required by determineNextDT (only absmax) -> can be removed once absmax is parallelized
-        
         // Select dt
         determineNextDT(0.0);
         
@@ -216,14 +207,12 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         
         // Set boundary conditions
         refreshBoundaries();
-
         
-
         // write vtk file
         if(n % conf_.getIntParameter("outputinterval") == 0) {
-            grid_.u().allgather();
-            grid_.v().allgather();
-            grid_.p().allgather();
+            grid_.u().allgather(); // This should be gather(), but does not terminate
+            grid_.v().allgather(); // This should be gather(), but does not terminate
+            grid_.p().allgather(); // This should be gather(), but does not terminate
             
             if(rank_ == 0)
                 vtkWriter.write();
@@ -249,8 +238,8 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         t += dt;
         n++;
     }
-    cout << "Finished after " << n << " timesteps" << endl;
-    cout << "Simulated time: " << t << endl;
+    cout << "["<<rank_<<"]" << "Finished after " << n << " timesteps" << endl;
+    cout << "["<<rank_<<"]" << "Simulated time: " << t << endl;
 }
 
 void  FluidSimulator::composeRHS() {
@@ -277,6 +266,7 @@ void  FluidSimulator::composeRHS() {
     
     normalize(grid_.rhs());
     
+
 }
 
 void  FluidSimulator::updateVelocities() {
@@ -396,23 +386,25 @@ void  FluidSimulator::refreshBoundaries() {
 void FluidSimulator::normalize(Array<real> &a) {
     // Find current average
     real avg = 0.0;
-    unsigned int count = 0;
-    for(int i=1; i < a.xSize()-1; i++) {
-        for(int j=1; j < a.ySize()-1; j++) {
+    for(int j=max(1, a.myYStart()); j <= min(a.ySize()-1, a.myYEnd()); j++) {
+        for(int i=1; i < a.xSize()-1; i++) {
             if(grid_.isFluid(i,j)) {
                 avg += a(i,j);
-                count++;
             }
         }
     }
-    avg /= count;
+    MPI_Allreduce(MPI_IN_PLACE, &avg, 1, mpi_real, MPI_SUM, MPI_COMM_WORLD);
+    avg /= grid_.numFluid;
     
     // Recenter pressure arount zero
-    for(int i=1; i < a.xSize()-1; i++) {
-        for(int j=1; j < a.ySize()-1; j++) {
+    for(int j=max(1, a.myYStart()); j <= min(a.ySize()-1, a.myYEnd()); j++) {
+        for(int i=1; i < a.xSize()-1; i++) {
             if(grid_.isFluid(i,j)) {
                 a(i,j) -= avg;
             }
         }
     }
+    
+    //a.syncGhostLayer();
+    a.allgather(); // Can be replaced with ghost layver sync once solver is parallelized
 }

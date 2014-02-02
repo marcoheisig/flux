@@ -5,7 +5,6 @@
 #include "GrayScaleImage.hh"
 #include <iostream>
 
-
 StaggeredGrid::StaggeredGrid(int xxSize, int yySize, real ddx, real ddy) :
     xSize_(xxSize), ySize_(yySize),
     p_(xxSize, yySize), p_2(xxSize, yySize),
@@ -14,10 +13,10 @@ StaggeredGrid::StaggeredGrid(int xxSize, int yySize, real ddx, real ddy) :
     g_(xxSize, yySize), flag_(xxSize, yySize), 
     dx_(ddx), dy_(ddy) {
     flag_.fill(FLUID);
+    numFluid = (flag_.xSize()-2)*(flag_.ySize()-2);
 }
 
 StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
-
     xSize_(configuration.getIntParameter("imax")+2),
     ySize_(configuration.getIntParameter("jmax")+2),
     p_(configuration.getIntParameter("imax")+2,
@@ -40,8 +39,10 @@ StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
         (real)configuration.getIntParameter("imax")),
     dy_(configuration.getRealParameter("ylength") / 
         (real)configuration.getIntParameter("jmax")) {
+
     
     flag_.fill(FLUID);
+    numFluid = (flag_.xSize()-2)*(flag_.ySize()-2);
     
     // Include obstacles
     if(configuration.getRealParameter("RectangleX1") >= 0.0 && 
@@ -94,12 +95,13 @@ StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
 }
 
 void StaggeredGrid::createRectangle(int x1, int y1, int x2, int y2) {
-    cout << x1 << " " << y1 << "     " << x2 << " " << y2 << endl;
     for(int x=x1; x<x2; ++x)
         for(int y=y1; y<y2; ++y)
             if(x < xSize_ && \
-               y < ySize_)
-            flag_(x,y) = SOLID;
+               y < ySize_) {
+                flag_(x,y) = SOLID;
+                numFluid--;
+            }
 }
 
 void StaggeredGrid::createCircle(int x, int y, int r) {
@@ -107,6 +109,9 @@ void StaggeredGrid::createCircle(int x, int y, int r) {
         for(int ry=-r; ry<r; ++ry)
             if(rx*rx+ry*ry <= r &&
                x+rx < xSize_ && \
-               y+ry < ySize_)
+               y+ry < ySize_){
                 flag_(x+rx,y+ry) = SOLID;
+                numFluid--;
+            }
+                   
 }

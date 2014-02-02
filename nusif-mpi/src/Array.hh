@@ -40,6 +40,7 @@ public:
     
     // MPI Functionality
     void allgather();
+    void gather(int root=0);
     void syncGhostLayer(bool send_north=true, bool send_south=true);
 
     int blockHeight() { return ySize_/num_procs_; }
@@ -49,14 +50,14 @@ public:
     int myYStart() {return yStartOfBlock(rank_);}
     int myYEnd() {return yEndOfBlock(rank_);}
 
-
     int rank_;
+
 private:
     std::vector<T> data;
     int xSize_, ySize_;
     
     int num_procs_;
- 
+
     
     int yStartOfBlock(int rank) { return blockHeight()*rank; }
 

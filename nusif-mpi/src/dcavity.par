@@ -10,14 +10,6 @@ name dcavity
 
 # per default all boundaries are NOSLIP if not otherwise stated
 
-#boundary_condition_W inflow
-#boundary_velocity_W 1.0          # constant velocity u_bar of the lid
-#boundary_velocity_E -1.0
-#boundary_condition_E inflow
-#boundary_condition_E outflow
-#boundary_condition_N outflow
-#boundary_condition_S outflow
-
 boundary_velocity_N 2.0
 
 GX    0.0                        # Body forces (e.g. gravity)
@@ -35,7 +27,7 @@ P_init    1.0                    # initial value for pressure
 
 xlength    10.0                    # domain size in x-direction
 ylength    10.0                    # domain size in y-direction
-imax       101                     # number of interior cells in x-direction
+imax       100                     # number of interior cells in x-direction
 jmax       100                     # number of interior cells in y-direction
 
 
@@ -49,7 +41,7 @@ safetyfactor 0.5                  # factor "tau" for timestep size control (<=0 
 # Pressure Iteration Data:
 # -----------------------
 
-itermax                1000       # maximal number of pressure iteration in one time step
+itermax                600       # maximal number of pressure iteration in one time step
 eps                    0.001     # stopping tolerance for pressure iteration
 omg                    1.8        # relaxation parameter for SOR iteration
 gamma                  0.9        # upwind differencing factor gamma
@@ -69,7 +61,7 @@ normalizationfrequency 100        # every n'th time step in the fluid solver the
 
 # VTK Visualization Data:
 # -----------------------
-outputinterval 5                  # every n'th time step the visualization should be printed to a file
+outputinterval 40                  # every n'th time step the visualization should be printed to a file
 
 
 #===============================================================================

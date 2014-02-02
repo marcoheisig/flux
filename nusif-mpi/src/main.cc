@@ -155,7 +155,7 @@ int main( int argc, char** argv )
     FluidSimulator sim(cfg);
     sim.simulateTimeStepCount(cfg.getIntParameter("timesteps"));
     
-    cout << "done" << endl;
+    cout << "["<<rank<<"]" << "done" << endl;
     
     MPI_Finalize();
     

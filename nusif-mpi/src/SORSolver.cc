@@ -1,3 +1,4 @@
+
 #include <mpi.h>
 #include <iostream>
 #include "Types.hh"
@@ -6,7 +7,6 @@
 #include "SORSolver.hh"
 #include "math.h"
 #include <cmath>
-
 
 using namespace std;
 
@@ -24,10 +24,10 @@ SORSolver::SORSolver(const FileReader & configuration) :
 }
 
 bool SORSolver::solve(StaggeredGrid & grid) {
-
     
     Array<real> *p_src = & (grid.p());
     Array<real> *p_dst = & (grid.p2());
+
     Array<real> &rhs = grid.rhs();
     
     const real dx2inv = 1.0/(grid.dx()*grid.dx());
@@ -35,11 +35,13 @@ bool SORSolver::solve(StaggeredGrid & grid) {
     
     const real c = 1.0/(2.0*dx2inv+2.0*dy2inv);
 
+
     real res = residual(*p_src, grid);
 
+
     int iter=0;
-    
     while(iter++ <= itermax_ && res > eps_) {
+
                         
         for(int j = max( 1, p_src->myYStart() );
             j <= min( p_src->myYEnd(), jmax_); j++) {
@@ -50,6 +52,7 @@ bool SORSolver::solve(StaggeredGrid & grid) {
                                           dy2inv*( grid.p(p_src, i,j, NORTH) + 
                                                    grid.p(p_src, i,j, SOUTH))
                                           -rhs(i,j));
+
             }
         }
         
@@ -60,7 +63,6 @@ bool SORSolver::solve(StaggeredGrid & grid) {
             res = residual( *p_dst, grid );
         }
         swap(p_src, p_dst);
-
     }
 
     if(p_dst->rank_ == 0) {
@@ -97,8 +99,10 @@ real SORSolver::residual(Array<real> &p, StaggeredGrid& grid) {
     
     real sum = 0.0;
     
-    for(int j= max( 1, p.myYStart());
-        j <= min( p.myYEnd(), jmax_); j++) {
+    p.syncGhostLayer();
+
+    for(int j=max(1, p.myYStart()); j<=min(jmax_, p.myYEnd()); j++) {
+    //for(int j=1; j<=jmax_; j++) {
         for(int i=1; i<=imax_; i++) {
             if(grid.isFluid(i,j)) {
                 real r = 
@@ -113,11 +117,8 @@ real SORSolver::residual(Array<real> &p, StaggeredGrid& grid) {
             }
         }
     }
-
-
-
-    real dst = 0;
-    MPI_Allreduce( &sum, &dst, 1, mpi_real, MPI_SUM, MPI_COMM_WORLD);
-
-    return sqrt(dst / (imax_*jmax_));
+    
+    MPI_Allreduce(MPI_IN_PLACE, &sum, 1, mpi_real, MPI_SUM, MPI_COMM_WORLD);
+    
+    return sqrt(sum/(imax_*jmax_));
 }
