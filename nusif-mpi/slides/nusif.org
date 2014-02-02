@@ -1,5 +1,5 @@
 #+STARTUP: beamer
-#+TITLE: Parralelisation of a Staggered Grid solver
+#+TITLE: Parallelisation of a Staggered Grid solver
 #+AUTHOR: Heisig, Hammer, Ernst
 #+LaTeX_CLASS: beamer
 #+LaTeX_CLASS_OPTIONS: [presentation]
@@ -88,6 +88,7 @@
    \s
    When all methods are converted, switch the Array implementation
    to store only local elements.
+
 * Results
 ** Results
    Was it worth the effort?
