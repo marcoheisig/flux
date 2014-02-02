@@ -295,8 +295,8 @@ void  FluidSimulator::updateVelocities() {
             if(grid_.isFluid(i,j))
                 v(i,j) = g(i,j) - dtdy*(grid_.p(i,j, NORTH)-p(i,j));
 
-    grid.u().syncGhostLayers(true, true);
-    grid.v().syncGhostLayers(true, true);
+    grid_.u().syncGhostLayer(true, true);
+    grid_.v().syncGhostLayer(true, true);
 }
 
 void FluidSimulator::determineNextDT(real const & limit) {
