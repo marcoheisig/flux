@@ -35,7 +35,7 @@ P_init    1.0                    # initial value for pressure
 
 xlength    10.0                    # domain size in x-direction
 ylength    10.0                    # domain size in y-direction
-imax       100                     # number of interior cells in x-direction
+imax       101                     # number of interior cells in x-direction
 jmax       100                     # number of interior cells in y-direction
 
 
@@ -49,7 +49,7 @@ safetyfactor 0.5                  # factor "tau" for timestep size control (<=0 
 # Pressure Iteration Data:
 # -----------------------
 
-itermax                600       # maximal number of pressure iteration in one time step
+itermax                1000       # maximal number of pressure iteration in one time step
 eps                    0.001     # stopping tolerance for pressure iteration
 omg                    1.8        # relaxation parameter for SOR iteration
 gamma                  0.9        # upwind differencing factor gamma
@@ -69,7 +69,7 @@ normalizationfrequency 100        # every n'th time step in the fluid solver the
 
 # VTK Visualization Data:
 # -----------------------
-outputinterval 40                  # every n'th time step the visualization should be printed to a file
+outputinterval 5                  # every n'th time step the visualization should be printed to a file
 
 
 #===============================================================================

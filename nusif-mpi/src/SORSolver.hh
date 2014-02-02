@@ -17,9 +17,10 @@ public:
     bool solve( StaggeredGrid & grid );
 
     // Calculates residual of grid
-    real residual( StaggeredGrid & grid );
+    real residual( StaggeredGrid& grid );
+    real residual( Array<real>& ip, StaggeredGrid& grid );
     
-    void setBoundary(StaggeredGrid & grid);
+    void setBoundary(Array<real>* ip);
     
     void normalizePressure(StaggeredGrid & grid);
 

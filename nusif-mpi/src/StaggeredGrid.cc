@@ -8,23 +8,38 @@
 
 StaggeredGrid::StaggeredGrid(int xxSize, int yySize, real ddx, real ddy) :
     xSize_(xxSize), ySize_(yySize),
-    p_(xxSize, yySize), rhs_(xxSize, yySize), u_(xxSize, yySize), v_(xxSize, yySize), 
-    f_(xxSize, yySize), g_(xxSize, yySize), flag_(xxSize, yySize), dx_(ddx), dy_(ddy) {
+    p_(xxSize, yySize), p_2(xxSize, yySize),
+    rhs_(xxSize, yySize), u_(xxSize, yySize),
+    v_(xxSize, yySize),  f_(xxSize, yySize),
+    g_(xxSize, yySize), flag_(xxSize, yySize), 
+    dx_(ddx), dy_(ddy) {
     flag_.fill(FLUID);
 }
 
 StaggeredGrid::StaggeredGrid(const FileReader & configuration) :
 
-    xSize_(configuration.getIntParameter("imax")+2), ySize_(configuration.getIntParameter("jmax")+2),
-    p_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
-    rhs_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
-    u_(configuration.getIntParameter("imax")+2/* 1 */, configuration.getIntParameter("jmax")+2),
-    v_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2/* 1 */),
-    f_(configuration.getIntParameter("imax")+2/* 1 */, configuration.getIntParameter("jmax")+2),
-    g_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2)/* 1 */,
-    flag_(configuration.getIntParameter("imax")+2, configuration.getIntParameter("jmax")+2),
-    dx_(configuration.getRealParameter("xlength")/(real)configuration.getIntParameter("imax")),
-    dy_(configuration.getRealParameter("ylength")/(real)configuration.getIntParameter("jmax")) {
+    xSize_(configuration.getIntParameter("imax")+2),
+    ySize_(configuration.getIntParameter("jmax")+2),
+    p_(configuration.getIntParameter("imax")+2,
+       configuration.getIntParameter("jmax")+2),
+    p_2(configuration.getIntParameter("imax")+2,
+        configuration.getIntParameter("jmax")+2),
+    rhs_(configuration.getIntParameter("imax")+2,
+         configuration.getIntParameter("jmax")+2),
+    u_(configuration.getIntParameter("imax")+2/* 1 */,
+       configuration.getIntParameter("jmax")+2),
+    v_(configuration.getIntParameter("imax")+2,
+       configuration.getIntParameter("jmax")+2/* 1 */),
+    f_(configuration.getIntParameter("imax")+2/* 1 */,
+       configuration.getIntParameter("jmax")+2),
+    g_(configuration.getIntParameter("imax")+2,
+       configuration.getIntParameter("jmax")+2)/* 1 */,
+    flag_(configuration.getIntParameter("imax")+2,
+          configuration.getIntParameter("jmax")+2),
+    dx_(configuration.getRealParameter("xlength") / 
+        (real)configuration.getIntParameter("imax")),
+    dy_(configuration.getRealParameter("ylength") / 
+        (real)configuration.getIntParameter("jmax")) {
     
     flag_.fill(FLUID);
     

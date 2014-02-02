@@ -37,6 +37,7 @@ public:
 
     // Getters / Setters for member variables
     Array<real> & p()      { return p_;    }
+    Array<real> & p2()      { return p_2;    }
     Array<real> & rhs()    { return rhs_;  }
     Array<real> & u()      { return u_;    }
     Array<real> & v()      { return v_;    }
@@ -45,6 +46,7 @@ public:
     Array<short> & flag()  { return flag_; }
 
     const Array<real>  & p()    const { return p_;    }
+    const Array<real>  & p2()    const { return p_2;    }
     const Array<real>  & rhs()  const { return rhs_;  }
     const Array<real>  & u()    const { return u_;    }
     const Array<real>  & v()    const { return v_;    }
@@ -61,6 +63,7 @@ public:
     inline real u(const int x, const int y, Direction dir);
     inline real v(const int x, const int y, Direction dir);
     inline real p(const int x, const int y, Direction dir);
+    inline real p(Array<real>* ip, const int x, const int y, Direction dir);
 
     real dx() const { return dx_; }
     real dy() const { return dy_; }
@@ -80,6 +83,7 @@ protected:
 
     
     Array<real> p_;      //< pressure field
+    Array<real> p_2;      //< pressure field, jacobi grid
     Array<real> rhs_;    //< right hand side of the pressure equation
     Array<real> u_;      //< first velocity component
     Array<real> v_;      //< second velocity component
@@ -157,6 +161,29 @@ inline real StaggeredGrid::p(const int x, const int y, Direction dir) {
     } else {
         // OBSTACLE with neumann boundary condition
         return p(x, y);
+    }
+}
+
+inline real StaggeredGrid::p(Array<real>* ip, const int x, const int y, Direction dir) {
+    int nx = x;
+    int ny = y;
+    
+    // New coordinate:
+    if(dir == NORTH)
+        ny += 1;
+    else if(dir == SOUTH)
+        ny -= 1;
+    else if(dir == WEST)
+        nx -= 1;
+    else
+        nx += 1;
+    
+    if(isFluid(nx, ny)) {
+        // FLUID
+        return (*ip)(nx, ny);
+    } else {
+        // OBSTACLE with neumann boundary condition
+        return (*ip)(x, y);
     }
 }
 

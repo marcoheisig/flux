@@ -1,3 +1,4 @@
+#include <mpi.h>
 #include <iostream>
 #include "Types.hh"
 #include "FileReader.hh"
@@ -5,7 +6,7 @@
 #include "SORSolver.hh"
 #include "math.h"
 #include <cmath>
-#include <mpi.h>
+
 
 using namespace std;
 
@@ -24,77 +25,72 @@ SORSolver::SORSolver(const FileReader & configuration) :
 
 bool SORSolver::solve(StaggeredGrid & grid) {
 
-        cout << grid.rank() << " solve\n";
-
-    Array<real> &p = grid.p();
+    
+    Array<real> *p_src = & (grid.p());
+    Array<real> *p_dst = & (grid.p2());
     Array<real> &rhs = grid.rhs();
     
     const real dx2inv = 1.0/(grid.dx()*grid.dx());
     const real dy2inv = 1.0/(grid.dy()*grid.dy());
     
-    const real c = omg_*1.0/(2.0*dx2inv+2.0*dy2inv);
+    const real c = 1.0/(2.0*dx2inv+2.0*dy2inv);
 
-    setBoundary(grid);
-        
-    real res = residual(grid);
+    real res = residual(*p_src, grid);
 
-#ifndef NDEBUG
-    cout << "Initial residual: " << res << endl;
-#endif
     int iter=0;
     
     while(iter++ <= itermax_ && res > eps_) {
-        p.syncGhostLayer();      
-        
-        for(int j= max( 1, p.myYStart());
-            j <= min( p.myYEnd(), jmax_); j++) {
-            //for(int j=1; j<=jmax_; j++) {
+                        
+        for(int j = max( 1, p_src->myYStart() );
+            j <= min( p_src->myYEnd(), jmax_); j++) {
             for(int i=1; i<=imax_; i++) {
                 if(grid.isFluid(i,j))
-                    p(i,j) = (1-omg_)*p(i,j) + 
-                        c* ( dx2inv*( grid.p(i,j, EAST) + 
-                                      grid.p(i,j, WEST)) + 
-                             dy2inv*( grid.p(i,j, NORTH) + 
-                                      grid.p(i,j, SOUTH))
-                             -rhs(i,j));
+                    (*p_dst)(i,j) = c * ( dx2inv*( grid.p(p_src, i,j, EAST) + 
+                                                   grid.p(p_src, i,j, WEST)) + 
+                                          dy2inv*( grid.p(p_src, i,j, NORTH) + 
+                                                   grid.p(p_src, i,j, SOUTH))
+                                          -rhs(i,j));
             }
         }
         
-        setBoundary(grid);
+        setBoundary(p_dst);
+        p_dst->syncGhostLayer();
         
         if(iter % checkfrequency_ == 0) {
-            res = residual(grid);
+            res = residual( *p_dst, grid );
         }
+        swap(p_src, p_dst);
 
     }
-    
-#ifndef NDEBUG
-    cout << iter << " iterations" << endl;
-    cout << scientific << "final residual: " << res << " (eps: "<<eps_<<")" << endl;
-#endif
+
+    if(p_dst->rank_ == 0) {
+        cout << "Residual at " << res << " after " << iter << " iterations\n";
+    } 
     
     return res <= eps_;
 }
 
-void SORSolver::setBoundary(StaggeredGrid & grid) {
-    Array<real> &p = grid.p();
-    
+void SORSolver::setBoundary(Array<real> * p) {
+     
     // West and East
     for(int j=1; j <= jmax_; j++) {
-        p(0,j) = p(1,j);
-        p(imax_+1,j) = p(imax_,j);
+        (*p)(0,j) = (*p)(1,j);
+        (*p)(imax_+1,j) = (*p)(imax_,j);
     }
     
     // North and South
     for(int i=1; i <= imax_; i++) {
-        p(i,0) = p(i,1);
-        p(i,jmax_+1) = p(i,jmax_);
+        (*p)(i,0) = (*p)(i,1);
+        (*p)(i,jmax_+1) = (*p)(i,jmax_);
     }
 }
 
-real SORSolver::residual(StaggeredGrid & grid) {
-    Array<real> &p = grid.p();
-    Array<real> &rhs = grid.rhs();
+real SORSolver::residual(StaggeredGrid& grid) {
+    return residual( grid.p(), grid );
+}
+
+real SORSolver::residual(Array<real> &p, StaggeredGrid& grid) {
+    Array<double>& rhs = grid.rhs();
     
     const real dx2inv = 1.0/(grid.dx()*grid.dx());
     const real dy2inv = 1.0/(grid.dy()*grid.dy());
@@ -105,8 +101,14 @@ real SORSolver::residual(StaggeredGrid & grid) {
         j <= min( p.myYEnd(), jmax_); j++) {
         for(int i=1; i<=imax_; i++) {
             if(grid.isFluid(i,j)) {
-                real r = dx2inv*(p(i+1,j)-2.0*p(i,j)+p(i-1,j)) + 
-                    dy2inv*(grid.p(i,j, NORTH)-2.0*p(i,j)+grid.p(i,j, SOUTH))-rhs(i,j);
+                real r = 
+                    dx2inv*( grid.p(&p, i,j, EAST)
+                             - 2.0*p(i,j)
+                             +grid.p(&p, i,j, WEST) ) + 
+                    dy2inv* ( grid.p(&p, i,j, NORTH) 
+                              - 2.0*p( i,j) 
+                              + grid.p(&p, i,j, SOUTH))
+                    -rhs(i,j);
                 sum += r*r;
             }
         }

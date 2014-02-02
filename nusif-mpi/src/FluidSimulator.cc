@@ -185,11 +185,11 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
     for(int i=0; i<grid_.u().xSize(); ++i)
         for(int j=0; j<grid_.u().ySize(); ++j) {
             // BACKSTEP SPECIAL!
-            //if(grid_.isFluid(1,j)) {
-            //    grid_.u()(i,j) = 1.0;
-            //} else {
-            //   grid_.u()(i,j) = 0.0;
-            // }
+            if(grid_.isFluid(1,j)) {
+                grid_.u()(i,j) = 1.0;
+            } else {
+               grid_.u()(i,j) = 0.0;
+             }
             grid_.u()(i,j) = conf_.getRealParameter("U_INIT");
         }
     
@@ -210,9 +210,9 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
         // Select dt
         determineNextDT(0.0);
         
-#ifndef NDEBUG
-        cout << "New timestep length: " << dt << endl;
-#endif
+        if( grid_.p().rank_ == 0)
+            cout << "New timestep length: " << dt << endl;
+
         
         // Set boundary conditions
         refreshBoundaries();
@@ -240,10 +240,7 @@ void FluidSimulator::simulateTimeStepCount(int nrOfTimeSteps) {
             normalize(grid_.p());
         
         // SOR
-        if(!sor.solve(grid_)) {
-            cerr << "SOR has failed. Aborted." << endl;
-            cerr << "Residual was: " << sor.residual(grid_) << endl;
-        }
+        sor.solve(grid_);
         
         // Compute u and v
         updateVelocities();
@@ -280,14 +277,6 @@ void  FluidSimulator::composeRHS() {
     
     normalize(grid_.rhs());
     
-#ifndef NDEBUG
-    // TODO Maybe port this to MPI or remove.
-    real s = 0.0;
-    for(int i=1; i<=conf_.getIntParameter("imax"); ++i)
-        for(int j=1; j<=conf_.getIntParameter("jmax"); ++j)
-            s += grid_.rhs()(i,j);
-    cout << "Sum over rhs: " << s << endl;
-#endif
 }
 
 void  FluidSimulator::updateVelocities() {
