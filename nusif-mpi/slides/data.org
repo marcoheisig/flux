@@ -1,0 +1,159 @@
+#+TITLE: Stencil Codes on the Xeon Phi
+#+AUTHOR:
+#+DATE:
+#+OPTIONS:   H:5 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LATEX_CLASS: koma-article
+#+LaTeX_CLASS_OPTIONS: [a4paper,twoside]
+#+LaTeX_CLASS_OPTIONS: [captions=tableheading]
+# +LaTeX_HEADER: \usepackage{biblatex}
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \usepackage{listings}
+#+STARTUP: latexpreview
+
+All cases: eps=0.001 and 4000 SOR iterations
+* Debug mode
+  |   x |  y | steps |  Re | np | time |
+  |-----+----+-------+-----+----+------|
+  | 120 | 28 |   100 | 500 |  1 | 3:46 |
+  | 120 | 28 |   100 | 500 |  2 | 2:09 |
+  | 120 | 28 |   100 | 500 |  3 | 1:25 |
+  | 120 | 28 |   100 | 500 |  5 | 0:59 |
+  | 120 | 28 |   100 | 500 |  6 | 0:50 |
+  | 120 | 28 |   100 | 500 | 15 | 0:42 |
+  | 120 | 28 |   100 | 500 | 30 | 0:52 |
+
+* Release mode
+
+
+
+#+BEGIN_SRC gnuplot :var data=blubb :exports none :file intracore.png :term pngcairo
+reset
+set term pngcairo size 2000, 1200 font "Sans, 36" enhanced dashed
+xrange[0:23]
+plot sin(x)/x
+#+END_SRC
+
+#+RESULTS:
+[[file:intracore.png]]
+
+#+tblname:blubb
+#+PLOT: ind:5 deps:(6)
+|   x |    y | steps |  Re | np | time |
+|-----+------+-------+-----+----+------|
+| 420 | 2000 |    10 | 500 |  1 |  274 |
+| 420 | 2000 |    10 | 500 |  2 |  276 |
+| 420 | 2000 |    10 | 500 |  3 |  107 |
+| 420 | 2000 |    10 | 500 |  4 |   82 |
+| 420 | 2000 |    10 | 500 |  5 |   68 |
+| 420 | 2000 |    10 | 500 |  6 |   60 |
+| 420 | 2000 |    10 | 500 |  7 |   52 |
+| 420 | 2000 |    10 | 500 | 10 |   46 |
+| 420 | 2000 |    10 | 500 | 12 |   38 |
+| 420 | 2000 |    10 | 500 | 14 |   34 |
+| 420 | 2000 |    10 | 500 | 15 |   32 |
+| 420 | 2000 |    10 | 500 | 30 |   30 |
+| 420 | 2000 |    10 | 500 | 60 |   49 |
+
+
+100x510, 4 nodes, 2000 iterations, 20 timesteps
+
+
+
+#+PLOT: ind:1 deps:(2 3)
+#+tblname:blubb2
+| core count | dataset 2 | dataset2, pinning | dataset 1 |
+|------------+-----------+-------------------+-----------|
+|          1 |       138 |               138 |       134 |
+|          2 |        78 |                67 |        68 |
+|          4 |        42 |                35 |        35 |
+|          8 |        19 |                19 |        19 |
+|         16 |        11 |                18 |      19.6 |
+|         32 |        12 |                12 |        14 |
+|         64 |        13 |               9.7 |        17 |
+
+#+begin_src gnuplot :var data=blubb2 :exports none :file efficiencyy.png :term pngcairo
+reset
+set term pngcairo size 2000, 1200 font "Sans, 36" enhanced dashed
+ 
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  lw 3
+set style line 81 lt rgb "#808080" lw 3 # grey
+set grid back linestyle 81
+set border 3 back linestyle 80
+set xtics nomirror
+set ytics nomirror
+set mxtics 10    # Makes logscale look good.
+set style line 1 lt 1 lc rgb "#A00000" lw 4 pt 1
+set style line 2 lt 1 lc rgb "#00A000" lw 4 pt 6
+set style line 3 lt 1 lc rgb "#5060D0" lw 4 pt 2
+set style line 4 lt 1 lc rgb "#F25900" lw 4 pt 9
+
+set style line 5 lt 2 lc rgb "#A00000" lw 4 pt 1
+set style line 6 lt 2 lc rgb "#00A000" lw 4 pt 6
+set style line 7 lt 2 lc rgb "#5060D0" lw 4 pt 2
+set style line 8 lt 2 lc rgb "#F25900" lw 4 pt 9
+
+set style line 9 lt 2 lc rgb "#A06580" lw 4 pt 13
+
+set xlabel "# of cores"
+set ylabel "Lattice updates, relative"
+set xrange [1:64]
+set logscale x
+#set logscale y
+
+set key right top
+
+plot \
+data u 1:(1/$3):xticlabels(1) w lp ls 1 title "256x1022"
+#data u 1:(1/$3)          w lp ls 2 title "256x1022"
+#x/150 w lp ls 3 title "optimum"
+#+end_src
+
+
+#+RESULTS:
+[[file:intracore.png]]
+
+
+#+begin_src gnuplot :var data=blubb2 :exports none :file efficiency.png :term pngcairo
+reset
+set term pngcairo size 2000, 1200 font "Sans, 36" enhanced dashed
+ 
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  lw 3
+set style line 81 lt rgb "#808080" lw 3 # grey
+set grid back linestyle 81
+set border 3 back linestyle 80
+set xtics nomirror
+set ytics nomirror
+set mxtics 10    # Makes logscale look good.
+set style line 1 lt 1 lc rgb "#A00000" lw 4 pt 1
+set style line 2 lt 1 lc rgb "#00A000" lw 4 pt 6
+set style line 3 lt 1 lc rgb "#5060D0" lw 4 pt 2
+set style line 4 lt 1 lc rgb "#F25900" lw 4 pt 9
+
+set style line 5 lt 2 lc rgb "#A00000" lw 4 pt 1
+set style line 6 lt 2 lc rgb "#00A000" lw 4 pt 6
+set style line 7 lt 2 lc rgb "#5060D0" lw 4 pt 2
+set style line 8 lt 2 lc rgb "#F25900" lw 4 pt 9
+
+set style line 9 lt 2 lc rgb "#A06580" lw 4 pt 13
+
+set xlabel "# of cores"
+set ylabel "Parallel efficiency"
+set xrange [1:64]
+set logscale x
+#set logscale y
+
+set key right top
+
+plot \
+data u 1:(1/$3/$1):xticlabels(1) w lp ls 1 title "256x1022"
+#+end_src
+
+#+RESULTS:
+[[file:efficiency.png]]
+
