@@ -20,6 +20,7 @@
     :END:
    - more compute power
    - more memory
+   - more caches (!)
    - parallel computing is the future
 *** Con                                                             :B_block:
     :PROPERTIES:
@@ -88,7 +89,11 @@
    \s
    When all methods are converted, switch the Array implementation
    to store only local elements.
-
+** Pitfalls
+   TODO Domi
+** Regarding parallelization
+   #+ATTR_LATEX: :width 7cm
+   [[file:boromir.jpg]]
 * Results
 ** Results
    Was it worth the effort?
@@ -97,6 +102,40 @@
    - SOR or Jacobi solver does not scale well
 
    Use a better algorithm before writing parallel code!
-* Possible improvements for numerical codes
-** Possible improvements for numerical codes
-Use LISP
+* Plans for the future
+** Plans for the future
+   Current numerical programs share several problems:
+*** Plain C/C++/FORTRAN
+    is good for performance but inappropriate for high level tasks, especially
+        runtime features.
+*** Huge codebase
+    of several hundred thousand lines of code (\rightarrow Huge maintenance effort)
+*** Hardly reusable parts
+    that are tightly connected to each other
+*** solution                                                :B_ignoreheading:
+    :PROPERTIES:
+    :BEAMER_env: ignoreheading
+    :END:
+    How can we escape this mess?
+** Hybrid approach
+   Use (at least) two languages!
+
+   One low level language with focus on:
+   - compiler optimisations
+   - vectorisation
+   - Typically C/C++ or FORTRAN
+
+   One high level language with focus on:
+   - abstraction
+   - beauty
+   - features
+   - rapid prototyping
+   - foreign function interface
+   - Recommended: Guile/Scheme, Python
+** The End
+   #+BEGIN_LaTeX
+   \LARGE{ Thank you for your attention! }
+   \vspace{2cm}
+   \Large
+   #+END_LaTeX
+
